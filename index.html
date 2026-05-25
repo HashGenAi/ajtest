@@ -126,9 +126,9 @@ const pageNumEl = document.getElementById("pageNum");
 const prevBtn = document.getElementById("prevBtn");
 const nextBtn = document.getElementById("nextBtn");
 
-// slug generator (MUST match Worker)
+// slug
 function slugify(text){
-  return text
+  return (text || "")
     .toLowerCase()
     .trim()
     .replace(/[^a-z0-9]+/g,'-')
@@ -141,7 +141,7 @@ function getImage(post){
     ||
     post.content?.$t.match(/<img.*?src="(.*?)"/i)?.[1]
     ||
-    "https://via.placeholder.com/500x280?text=No+Image"
+    "https://via.placeholder.com/500x280"
   );
 }
 
@@ -149,106 +149,100 @@ function getSummary(html){
   if(!html) return "";
   const div = document.createElement("div");
   div.innerHTML = html;
-  return div.innerText.replace(/\s+/g," ").trim().substring(0,120) + "...";
+  return div.innerText.replace(/\s+/g," ").trim().substring(0,120);
 }
 
-// create card
+// CARD
 function createCard(post){
-
   const title = post.title?.$t || "No Title";
   const image = getImage(post);
-  const summary = getSummary(post.content?.$t);
   const date = new Date(post.published?.$t).toLocaleDateString();
-
   const slug = slugify(title);
 
   return `
     <div class="card" onclick="openPost('${slug}')">
-      <img class="poster" src="${image}" loading="lazy">
+      <img class="poster" src="${image}">
       <div class="content">
-        <h3 class="title">${title}</h3>
+        <h3>${title}</h3>
         <div class="meta">${date}</div>
-        <div class="desc">${summary}</div>
       </div>
     </div>
   `;
 }
 
-// OPEN POST (REAL ROUTE)
+// OPEN POST (IMPORTANT FIX)
 function openPost(slug){
   location.href = "/post/" + slug;
 }
 
-// SHOW POST CONTENT
+// RENDER POST
 function renderPost(post){
-
-  const title = post.title?.$t || "No Title";
-  const content = post.content?.$t || "";
-
   postsEl.style.display = "none";
   detailView.style.display = "block";
 
   detailContent.innerHTML = `
-    <h2>${title}</h2>
-    <div>${content}</div>
+    <h2>${post.title?.$t}</h2>
+    <div>${post.content?.$t || ""}</div>
   `;
 }
 
-// BACK BUTTON
-function goBack(){
-  history.pushState({}, "", "/");
-  postsEl.style.display = "grid";
-  detailView.style.display = "none";
-}
-
-// LOAD POSTS
-async function loadPosts(page){
-
-  postsEl.innerHTML = `<div class="loading">Loading...</div>`;
-
-  const res = await fetch(API + "?page=" + page);
-  const data = await res.json();
-
-  allPosts = data.posts || [];
-
-  postsEl.innerHTML = allPosts.map(p => createCard(p)).join("");
-
-  pageNumEl.innerText = page;
-  prevBtn.disabled = page <= 1;
-
-  checkRoute();
-}
-
-// FIND POST FROM SLUG
+// FIND POST SAFE
 function findPost(slug){
   return allPosts.find(p =>
     slugify(p.title?.$t || "") === slug
   );
 }
 
-// ROUTER
-function checkRoute(){
+// ROUTE HANDLER (FIXED)
+function handleRoute(){
 
   const path = window.location.pathname;
 
-  if(path.startsWith("/post/")){
+  if(!path.startsWith("/post/")) return;
 
-    const slug = path.replace("/post/", "");
+  const slug = path.replace("/post/", "");
 
-    const post = findPost(slug);
+  const post = findPost(slug);
 
-    if(post){
-      renderPost(post);
-    } else {
-      postsEl.style.display = "none";
-      detailView.style.display = "block";
-      detailContent.innerHTML = "<h2>Post not found</h2>";
-    }
-
+  if(post){
+    renderPost(post);
   } else {
-    postsEl.style.display = "grid";
-    detailView.style.display = "none";
+    detailView.style.display = "block";
+    postsEl.style.display = "none";
+    detailContent.innerHTML = "<h2>Loading post...</h2>";
+
+    // retry once data loads
+    setTimeout(() => {
+      const retry = findPost(slug);
+      if(retry) renderPost(retry);
+      else detailContent.innerHTML = "<h2>Post not found</h2>";
+    }, 1500);
   }
+}
+
+// LOAD POSTS
+async function loadPosts(page){
+
+  postsEl.innerHTML = "Loading...";
+
+  const res = await fetch(API + "?page=" + page);
+  const data = await res.json();
+
+  allPosts = data.posts || [];
+
+  postsEl.innerHTML = allPosts.map(createCard).join("");
+
+  pageNumEl.innerText = page;
+  prevBtn.disabled = page <= 1;
+
+  handleRoute(); // 🔥 IMPORTANT FIX HERE
+}
+
+// BACK
+function goBack(){
+  history.pushState({}, "", "/");
+  postsEl.style.display = "grid";
+  detailView.style.display = "none";
 }
 
 // PAGINATION
