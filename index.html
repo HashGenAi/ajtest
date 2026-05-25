@@ -29,8 +29,8 @@ h1{margin-bottom:25px;}
   background:#1c1c1c;
   border-radius:14px;
   overflow:hidden;
-  transition:.3s;
   cursor:pointer;
+  transition:.3s;
 }
 
 .card:hover{
@@ -41,7 +41,6 @@ h1{margin-bottom:25px;}
   width:100%;
   aspect-ratio:16/9;
   object-fit:cover;
-  display:block;
 }
 
 .content{padding:14px;}
@@ -49,27 +48,12 @@ h1{margin-bottom:25px;}
 .title{
   font-size:17px;
   margin:0 0 10px;
-  line-height:1.4;
 }
 
 .meta{
   font-size:13px;
   color:#bbb;
   margin-bottom:10px;
-}
-
-.labels{
-  display:flex;
-  flex-wrap:wrap;
-  gap:6px;
-  margin-bottom:12px;
-}
-
-.label{
-  background:#333;
-  padding:4px 8px;
-  border-radius:30px;
-  font-size:12px;
 }
 
 .desc{
@@ -82,7 +66,6 @@ h1{margin-bottom:25px;}
   margin-top:40px;
   display:flex;
   justify-content:center;
-  align-items:center;
   gap:10px;
 }
 
@@ -96,14 +79,11 @@ button{
   font-weight:bold;
 }
 
-button:disabled{
-  opacity:.5;
-}
+button:disabled{opacity:.5;}
 
 .loading{
   text-align:center;
   padding:40px;
-  font-size:18px;
 }
 
 #detailView{
@@ -133,20 +113,20 @@ button:disabled{
 </div>
 
 <script>
+
 const API = "https://jiorockers-api.salim1monira.workers.dev";
 
 let currentPage = 1;
 let allPosts = [];
 
 const postsEl = document.getElementById("posts");
+const detailView = document.getElementById("detailView");
+const detailContent = document.getElementById("detailContent");
 const pageNumEl = document.getElementById("pageNum");
 const prevBtn = document.getElementById("prevBtn");
 const nextBtn = document.getElementById("nextBtn");
 
-const detailView = document.getElementById("detailView");
-const detailContent = document.getElementById("detailContent");
-
-// slug generator (must match worker)
+// slug generator (MUST match Worker)
 function slugify(text){
   return text
     .toLowerCase()
@@ -174,6 +154,7 @@ function getSummary(html){
 
 // create card
 function createCard(post){
+
   const title = post.title?.$t || "No Title";
   const image = getImage(post);
   const summary = getSummary(post.content?.$t);
@@ -193,12 +174,12 @@ function createCard(post){
   `;
 }
 
-// open post (NEW /post/slug routing)
+// OPEN POST (REAL ROUTE)
 function openPost(slug){
   location.href = "/post/" + slug;
 }
 
-// render post view
+// SHOW POST CONTENT
 function renderPost(post){
 
   const title = post.title?.$t || "No Title";
@@ -213,14 +194,14 @@ function renderPost(post){
   `;
 }
 
-// go back
+// BACK BUTTON
 function goBack(){
   history.pushState({}, "", "/");
   postsEl.style.display = "grid";
   detailView.style.display = "none";
 }
 
-// load posts
+// LOAD POSTS
 async function loadPosts(page){
 
   postsEl.innerHTML = `<div class="loading">Loading...</div>`;
@@ -238,24 +219,23 @@ async function loadPosts(page){
   checkRoute();
 }
 
-// find post from slug
-function findPostBySlug(slug){
+// FIND POST FROM SLUG
+function findPost(slug){
   return allPosts.find(p =>
     slugify(p.title?.$t || "") === slug
   );
 }
 
-// route handler
+// ROUTER
 function checkRoute(){
 
   const path = window.location.pathname;
 
-  // if /post/slug
   if(path.startsWith("/post/")){
 
     const slug = path.replace("/post/", "");
 
-    const post = findPostBySlug(slug);
+    const post = findPost(slug);
 
     if(post){
       renderPost(post);
@@ -271,7 +251,7 @@ function checkRoute(){
   }
 }
 
-// pagination
+// PAGINATION
 nextBtn.onclick = () => {
   currentPage++;
   loadPosts(currentPage);
@@ -284,8 +264,9 @@ prevBtn.onclick = () => {
   }
 };
 
-// init
+// INIT
 loadPosts(currentPage);
+
 </script>
 
 </body>
