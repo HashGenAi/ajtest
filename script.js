@@ -46,7 +46,6 @@
 
         if(!posterBox) return;
 
-        // already initialized
         if(posterBox.dataset.ready) return;
 
         posterBox.dataset.ready = "1";
@@ -56,7 +55,6 @@
 
         /* =========================
            TAKE FIRST IMAGE
-           FROM POST CONTENT
         ========================= */
 
         if(!poster){
@@ -76,6 +74,18 @@
         }
 
         /* =========================
+           BLOGGER LARGE SIZE
+        ========================= */
+
+        if(poster){
+          poster =
+            poster.replace(
+              /\/s\d+(-c)?\//,
+              "/s1600/"
+            );
+        }
+
+        /* =========================
            FALLBACK
         ========================= */
 
@@ -88,6 +98,8 @@
             src="${poster}"
             alt=""
             draggable="false"
+            loading="eager"
+            decoding="async"
             style="
               width:100%;
               height:100%;
@@ -118,15 +130,12 @@
 
     if(!iframe) return;
 
-    // hide overlay
     el.style.display = "none";
 
-    // hide poster
     if(poster){
       poster.style.display = "none";
     }
 
-    // load video only once
     if(!iframe.src){
 
       const domainId =
@@ -201,6 +210,10 @@
     );
   }
 
+  /* =========================
+     UPDATE POPUP IMAGE
+  ========================= */
+
   function updatePopupImage(){
 
     if(
@@ -211,18 +224,48 @@
     const img =
       currentImages[currentIndex];
 
-    const src =
+    let src =
+      img.getAttribute("data-src")
+      ||
+      img.getAttribute("data-lazy-src")
+      ||
       img.currentSrc
       ||
       img.src
       ||
       img.getAttribute("src")
       ||
-      img.dataset.src
-      ||
       "";
 
-    popupImg.src = src;
+    /* =========================
+       FORCE LARGE BLOGGER IMAGE
+    ========================= */
+
+    src = src.replace(
+      /\/s\d+(-c)?\//,
+      "/s1600/"
+    );
+
+    /* =========================
+       LOADING EFFECT
+    ========================= */
+
+    popupImg.style.opacity = "0";
+
+    const preload = new Image();
+
+    preload.onload = () => {
+
+      popupImg.src =
+        preload.src;
+
+      requestAnimationFrame(() => {
+
+        popupImg.style.opacity = "1";
+      });
+    };
+
+    preload.src = src;
   }
 
   function openPopup(index){
@@ -236,9 +279,9 @@
 
     currentIndex = index;
 
-    updatePopupImage();
-
     popup.classList.add("active");
+
+    updatePopupImage();
 
     history.pushState(
       { popupOpen:true },
@@ -334,12 +377,11 @@
 
       if(index !== -1){
 
-        // wait for render
         setTimeout(() => {
 
           openPopup(index);
 
-        }, 50);
+        }, 100);
       }
 
       return;
@@ -485,7 +527,7 @@
   );
 
   /* =========================
-     OBSERVE DYNAMIC HTML
+     OBSERVER
   ========================= */
 
   const observer =
