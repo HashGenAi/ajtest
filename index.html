@@ -826,70 +826,13 @@
       border-radius:30px;
     }
 
-    .video-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 35vh;
-      gap: 20px;
-    }
-
-    .video-wrapper {
-      width: 100%;
-      max-width: 600px;
-      position: relative;
-      border-radius: 10px;
-      overflow: hidden;
-      background: #000;
-      aspect-ratio: 16 / 9;
-      margin-bottom: 20px;
-    }
-
-    .video-poster {
-      position: absolute;
-      inset: 0;
-      background-color: #000;
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      z-index: 1;
-    }
-
-    .video-player {
-      width: 100%;
-      height: 100%;
-      border: 0;
-      position: relative;
-      z-index: 2;
-    }
-
-    .video-overlay {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 3;
-      cursor: pointer;
-    }
-
-    .play-button {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.95);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 32px;
-      color: #111;
-      box-shadow: 0 12px 30px rgba(0,0,0,0.4);
-      transition: transform 0.2s ease;
-    }
-
-    .video-overlay:hover .play-button {
-      transform: scale(1.08);
+    .video-container,
+    .video-wrapper,
+    .video-poster,
+    .video-player,
+    .video-overlay,
+    .play-button{
+      display:none;
     }
 
     .tmdb-extra-images {
@@ -1195,6 +1138,7 @@
     const searchInput = document.getElementById("searchInput");
     const searchClear = document.getElementById("searchClear");
     const searchStatus = document.getElementById("searchStatus");
+    const pageTitleEl = document.querySelector(".page-title");
 
     const searchBtn = document.getElementById("searchBtn");
     const menuBtn = document.getElementById("menuBtn");
@@ -1219,6 +1163,12 @@
         left: 0,
         behavior: "auto"
       });
+    }
+
+    function setPageTitleVisible(visible){
+      if(pageTitleEl){
+        pageTitleEl.style.display = visible ? "block" : "none";
+      }
     }
 
     function openSidebar(){
@@ -1338,6 +1288,7 @@
     }
 
     function showHome(){
+      setPageTitleVisible(true);
       postsEl.style.display = "grid";
       pagination.style.display = currentSearch ? "none" : "flex";
       detailView.style.display = "none";
@@ -1345,6 +1296,7 @@
     }
 
     function showDetail(){
+      setPageTitleVisible(false);
       postsEl.style.display = "none";
       pagination.style.display = "none";
       detailView.style.display = "block";
@@ -1441,17 +1393,10 @@
     }
 
     function renderDetailHeader(post){
-      const image = getImage(post);
       const title = post.title?.$t || "No Title";
       const labels = getLabels(post);
 
       return `
-        <div class="video-container" style="margin-bottom:24px;">
-          <div class="video-wrapper">
-            <div class="video-poster" style="background-image:url('${image}')"></div>
-          </div>
-        </div>
-
         <h2 class="detail-title">${title}</h2>
 
         <div class="labels" style="margin-bottom:18px;">
@@ -1512,7 +1457,6 @@
       currentPage = foundPage;
       pageNumEl.innerText = currentPage;
 
-      const title = post.title?.$t || "No Title";
       const content = post.content?.$t || "";
 
       detailContent.innerHTML = `
@@ -1553,6 +1497,7 @@
       postsEl.innerHTML = `<div class="loading">Loading Premium Movies...</div>`;
 
       showHome();
+      setPageTitleVisible(true);
 
       await ensurePostsForPage(page);
 
@@ -1614,6 +1559,7 @@
       scrollToTopNow();
       closeSidebar();
       showHome();
+      setPageTitleVisible(false);
 
       currentSearch = query.trim();
       searchStatus.style.display = "block";
