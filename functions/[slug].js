@@ -30,14 +30,12 @@ export async function onRequest(context) {
       if (!res.ok) break;
 
       const data = await res.json();
-
       const posts = data?.feed?.entry || [];
 
       allPosts.push(...posts);
 
       for (const post of posts) {
         const title = post.title?.$t || "";
-
         if (slugify(title) === slug) {
           foundPost = post;
         }
@@ -58,13 +56,23 @@ export async function onRequest(context) {
 
   // POST DATA
   const title = foundPost.title?.$t || "No Title";
-  const content = foundPost.content?.$t || "";
+  const rawContent = foundPost.content?.$t || "";
+
+  // Find first image in content
+  const firstContentImageMatch = rawContent.match(/<img[^>]*src="([^"]+)"[^>]*>/i);
+  const firstContentImage = firstContentImageMatch?.[1] || "";
 
   // IMAGE
   const image =
     foundPost.media$thumbnail?.url?.replace("/s72-c/", "/s1200/") ||
-    foundPost.content?.$t?.match(/<img.*?src="(.*?)"/i)?.[1] ||
+    firstContentImage ||
     "";
+
+  // Remove the first image from body if it matches the featured image
+  let content = rawContent;
+  if (firstContentImageMatch?.[0]) {
+    content = content.replace(firstContentImageMatch[0], "");
+  }
 
   // LABELS
   const labels = (foundPost.category || [])
@@ -101,7 +109,6 @@ export async function onRequest(context) {
     `;
   }
 
-  // HTML
   const html = `
 <!DOCTYPE html>
 <html lang="en">
@@ -118,18 +125,11 @@ export async function onRequest(context) {
 
 <header class="topbar">
   <a class="brand" href="/">
-    <div class="brand-logo">
-      M
-    </div>
+    <div class="brand-logo">M</div>
 
     <div class="brand-text">
-      <h1>
-        Premium Movie Blog
-      </h1>
-
-      <p>
-        Latest movies, clean layout, quick browsing
-      </p>
+      <h1>Premium Movie Blog</h1>
+      <p>Latest movies, clean layout, quick browsing</p>
     </div>
   </a>
 </header>
@@ -141,29 +141,22 @@ export async function onRequest(context) {
     </a>
 
     <div id="detailContent">
-      <h1 class="detail-title">
-        ${title}
-      </h1>
+      <h1 class="detail-title">${title}</h1>
 
       <div class="labels" style="margin-bottom:18px;display:flex;flex-wrap:wrap;gap:8px;">
         ${labels
           .map(label => `
-            <span class="label">
-              ${label}
-            </span>
+            <span class="label">${label}</span>
           `)
           .join("")}
       </div>
 
-      ${
-        image
-          ? `
+      ${image ? `
         <img
           src="${image}"
+          alt="${title}"
           style="width:100%;border-radius:20px;margin-bottom:20px;display:block;">
-      `
-          : ""
-      }
+      ` : ""}
 
       <div class="detail-body">
         ${content}
@@ -171,9 +164,7 @@ export async function onRequest(context) {
     </div>
 
     <div id="relatedPostsSection" style="margin-top:50px;">
-      <h2 style="margin-bottom:20px;font-size:28px;">
-        Related Posts
-      </h2>
+      <h2 style="margin-bottom:20px;font-size:28px;">Related Posts</h2>
 
       <div id="relatedPosts" class="grid">
         ${relatedPosts.map(post => createCard(post)).join("")}
@@ -182,7 +173,7 @@ export async function onRequest(context) {
   </div>
 </div>
 
-<script src="/script.js"></script>
+<script src="/script.js" defer></script>
 
 </body>
 </html>
