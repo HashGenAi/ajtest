@@ -103,6 +103,9 @@
       isolation:isolate;
       box-shadow:0 8px 25px rgba(0,0,0,.35);
       will-change:transform;
+      text-decoration:none;
+      color:inherit;
+      display:block;
     }
 
     .card::before{
@@ -231,7 +234,11 @@
       flex-wrap:wrap;
     }
 
-    button{
+    .nav-btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      text-decoration:none;
       border:none;
       outline:none;
       background:linear-gradient(135deg,#ff004c,#ff5e00);
@@ -243,16 +250,20 @@
       cursor:pointer;
       transition:.3s ease;
       box-shadow:0 10px 20px rgba(255,0,76,.2);
+      min-width:88px;
     }
 
-    button:hover{
+    .nav-btn:hover{
       transform:translateY(-3px) scale(1.03);
       box-shadow:0 14px 30px rgba(255,0,76,.35);
     }
 
-    button:disabled{
+    .nav-btn.disabled{
       opacity:.45;
+      pointer-events:none;
       cursor:not-allowed;
+      box-shadow:none;
+      transform:none;
     }
 
     #pageNum{
@@ -296,7 +307,6 @@
       align-items:start;
     }
 
-    /* Stop movement in related section */
     #relatedPosts .card:hover{
       transform:none;
       box-shadow:0 8px 25px rgba(0,0,0,.35);
@@ -343,13 +353,13 @@
   <div id="posts" class="grid"></div>
 
   <div class="pagination" id="pagination">
-    <button id="prevBtn">Prev</button>
+    <a id="prevBtn" class="nav-btn" href="?page=1">Prev</a>
     <span id="pageNum">1</span>
-    <button id="nextBtn">Next</button>
+    <a id="nextBtn" class="nav-btn" href="?page=2">Next</a>
   </div>
 
   <div id="detailView">
-    <button id="backBtn" style="margin-bottom:20px;">⬅ Back</button>
+    <a id="backBtn" class="nav-btn" style="margin-bottom:20px; display:inline-flex;" href="?page=1">⬅ Back</a>
     <div id="detailContent"></div>
 
     <div id="relatedPostsSection" style="display:none;">
@@ -404,14 +414,15 @@
         });
     }
 
-    function createCard(post){
+    function createCard(post, pageForLink = currentPage){
       const image = getImage(post);
       const title = post.title?.$t || "No Title";
       const labels = getLabels(post);
       const slug = slugify(title);
+      const href = `?page=${pageForLink}&post=${encodeURIComponent(slug)}`;
 
       return `
-        <div class="card" onclick="openPost('${slug}')">
+        <a class="card" href="${href}" data-slug="${slug}">
           <div class="poster-wrap">
             <img class="poster" src="${image}" loading="lazy" alt="${title}">
           </div>
@@ -423,7 +434,7 @@
               ${labels.slice(0,6).map(label => `<span class="label">${label}</span>`).join("")}
             </div>
           </div>
-        </div>
+        </a>
       `;
     }
 
@@ -484,7 +495,7 @@
           return;
         }
 
-        relatedPostsEl.innerHTML = relatedPosts.map(post => createCard(post)).join("");
+        relatedPostsEl.innerHTML = relatedPosts.map(post => createCard(post, 1)).join("");
 
         requestAnimationFrame(() => {
           window.scrollTo(0, keepY);
@@ -516,17 +527,15 @@
         <div>${content}</div>
       `;
 
+      backBtn.href = `?page=${currentPage}`;
+
       if(addHistory){
-        const url = `?page=${currentPage}&post=${slug}`;
+        const url = `?page=${currentPage}&post=${encodeURIComponent(slug)}`;
         history.pushState({ page: currentPage, post: slug }, "", url);
       }
 
       loadRelatedPosts(slug);
       updatePageBadge();
-    }
-
-    function goBack(){
-      history.back();
     }
 
     function loadPageFromAPI(page, cb){
@@ -536,10 +545,26 @@
         .then(res => res.json())
         .then(data => {
           allPosts = data.posts || [];
-          postsEl.innerHTML = allPosts.slice(0, POSTS_PER_PAGE).map(post => createCard(post)).join("");
+          postsEl.innerHTML = allPosts.slice(0, POSTS_PER_PAGE).map(post => createCard(post, page)).join("");
           pageNumEl.innerText = page;
-          prevBtn.disabled = page <= 1;
-          nextBtn.disabled = false;
+
+          const prevPage = page > 1 ? page - 1 : 1;
+          const nextPage = page + 1;
+
+          prevBtn.href = `?page=${prevPage}`;
+          nextBtn.href = `?page=${nextPage}`;
+
+          if(page <= 1){
+            prevBtn.classList.add("disabled");
+            prevBtn.setAttribute("aria-disabled", "true");
+          }else{
+            prevBtn.classList.remove("disabled");
+            prevBtn.removeAttribute("aria-disabled");
+          }
+
+          nextBtn.classList.remove("disabled");
+          nextBtn.removeAttribute("aria-disabled");
+
           updatePageBadge();
 
           if(typeof cb === "function") cb();
@@ -557,6 +582,8 @@
         showHome();
         relatedPostsSection.style.display = "none";
         relatedPostsEl.innerHTML = "";
+
+        backBtn.href = `?page=${page}`;
 
         if(addHistory){
           history.pushState({ page }, "", `?page=${page}`);
@@ -577,7 +604,6 @@
 
       currentPage = Number.isFinite(page) && page > 0 ? page : 1;
       pageNumEl.innerText = currentPage;
-      prevBtn.disabled = currentPage <= 1;
       updatePageBadge();
 
       loadPageFromAPI(currentPage, () => {
@@ -589,17 +615,26 @@
       });
     }
 
-    prevBtn.onclick = () => {
+    prevBtn.addEventListener("click", (e) => {
+      if(prevBtn.classList.contains("disabled")){
+        e.preventDefault();
+        return;
+      }
+      e.preventDefault();
       if(currentPage > 1){
         renderPage(currentPage - 1, true);
       }
-    };
+    });
 
-    nextBtn.onclick = () => {
+    nextBtn.addEventListener("click", (e) => {
+      e.preventDefault();
       renderPage(currentPage + 1, true);
-    };
+    });
 
-    backBtn.onclick = goBack;
+    backBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      history.back();
+    });
 
     window.onpopstate = () => {
       const params = new URLSearchParams(window.location.search);
@@ -608,8 +643,6 @@
 
       currentPage = Number.isFinite(page) && page > 0 ? page : 1;
       pageNumEl.innerText = currentPage;
-      prevBtn.disabled = currentPage <= 1;
-      updatePageBadge();
 
       loadPageFromAPI(currentPage, () => {
         if(slug){
