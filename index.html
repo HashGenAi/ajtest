@@ -1155,7 +1155,7 @@
     
     <div id="searchStatus" class="search-status"></div>    
     
-    <h1 class="page-title">Latest Movies</h1>    
+    <div class="page-title">Latest Movies</div>    
     
     <div id="latestSection"></div>    
     <div id="posts" class="grid"></div>    
@@ -1516,8 +1516,6 @@
     
       const post = result.post;    
       const foundPage = result.page || 1;    
-      const title = post.title?.$t || "No Title";    
-      document.title = title;    
     
       currentPage = foundPage;    
       pageNumEl.innerText = currentPage;    
