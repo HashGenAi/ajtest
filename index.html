@@ -164,6 +164,13 @@
       justify-content:center;
     }
 
+    .topbar-actions{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex:0 0 auto;
+    }
+
     .menu-btn{
       width:46px;
       height:46px;
@@ -182,6 +189,11 @@
     .menu-btn:hover{
       background:rgba(255,255,255,.14);
       transform:translateY(-1px);
+    }
+
+    .menu-btn.active{
+      background:rgba(255,255,255,.18);
+      box-shadow:0 0 0 2px rgba(255,255,255,.12) inset;
     }
 
     .menu-lines{
@@ -204,6 +216,10 @@
     .menu-lines span:nth-child(2){ top:6px; }
     .menu-lines span:nth-child(3){ bottom:0; }
 
+    .search-btn svg{
+      display:block;
+    }
+
     @media (max-width: 860px){
       .topbar{
         flex-wrap:wrap;
@@ -212,6 +228,10 @@
       .topbar-center{
         order:3;
         width:100%;
+      }
+
+      .topbar-actions{
+        margin-left:auto;
       }
 
       .search-wrap{
@@ -695,6 +715,22 @@
       line-height:1.5;
     }
 
+    .detail-body{
+      line-height:1.8;
+      color:#eaeaea;
+    }
+
+    .detail-body img{
+      max-width:100%;
+      height:auto;
+      border-radius:14px;
+    }
+
+    .detail-body iframe,
+    .detail-body video{
+      max-width:100%;
+    }
+
     #relatedPostsSection{
       margin-top:40px;
       min-height:520px;
@@ -1061,13 +1097,22 @@
       </div>
     </div>
 
-    <button class="menu-btn" id="menuBtn" aria-label="Open menu">
-      <div class="menu-lines" aria-hidden="true">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-    </button>
+    <div class="topbar-actions">
+      <button class="menu-btn search-btn" id="searchBtn" aria-label="Focus search">
+        <svg viewBox="0 0 24 24" fill="none" width="20" height="20" aria-hidden="true">
+          <path d="M21 21l-4.35-4.35" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="11" cy="11" r="7" stroke="white" stroke-width="2"/>
+        </svg>
+      </button>
+
+      <button class="menu-btn" id="menuBtn" aria-label="Open menu">
+        <div class="menu-lines" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </button>
+    </div>
   </header>
 
   <div class="app">
@@ -1116,6 +1161,7 @@
     const searchClear = document.getElementById("searchClear");
     const searchStatus = document.getElementById("searchStatus");
 
+    const searchBtn = document.getElementById("searchBtn");
     const menuBtn = document.getElementById("menuBtn");
     const sidebar = document.getElementById("sidebar");
     const sidebarOverlay = document.getElementById("sidebarOverlay");
@@ -1359,6 +1405,26 @@
       return null;
     }
 
+    function renderDetailHeader(post){
+      const image = getImage(post);
+      const title = post.title?.$t || "No Title";
+      const labels = getLabels(post);
+
+      return `
+        <div class="video-container" style="margin-bottom:24px;">
+          <div class="video-wrapper">
+            <div class="video-poster" style="background-image:url('${image}')"></div>
+          </div>
+        </div>
+
+        <h2 class="detail-title">${title}</h2>
+
+        <div class="labels" style="margin-bottom:18px;">
+          ${labels.slice(0, 8).map(label => `<span class="label">${label}</span>`).join("")}
+        </div>
+      `;
+    }
+
     async function loadRelatedPosts(currentSlug){
       try{
         relatedPostsSection.style.display = "block";
@@ -1415,8 +1481,8 @@
       const content = post.content?.$t || "";
 
       detailContent.innerHTML = `
-        <h2 class="detail-title">${title}</h2>
-        <div>${content}</div>
+        ${renderDetailHeader(post)}
+        <div class="detail-body">${content}</div>
       `;
 
       const prevPage = currentPage > 1 ? currentPage - 1 : 1;
@@ -1556,6 +1622,8 @@
         searchClear.classList.remove("show");
       }
 
+      searchBtn.classList.toggle("active", !!value.trim() || document.activeElement === searchInput);
+
       clearTimeout(searchTimer);
       searchTimer = setTimeout(() => {
         renderSearchResults(value, true);
@@ -1577,6 +1645,7 @@
       if(search){
         searchInput.value = search;
         searchClear.classList.add("show");
+        searchBtn.classList.add("active");
         await renderSearchResults(search, false);
       }else if(slug){
         await openPost(slug, false);
@@ -1611,6 +1680,22 @@
       history.back();
     });
 
+    searchBtn.addEventListener("click", () => {
+      searchInput.focus();
+      searchInput.select();
+      searchBtn.classList.add("active");
+    });
+
+    searchInput.addEventListener("focus", () => {
+      searchBtn.classList.add("active");
+    });
+
+    searchInput.addEventListener("blur", () => {
+      if(!searchInput.value.trim()){
+        searchBtn.classList.remove("active");
+      }
+    });
+
     menuBtn.addEventListener("click", toggleSidebar);
     sidebarClose.addEventListener("click", closeSidebar);
     sidebarOverlay.addEventListener("click", closeSidebar);
@@ -1632,6 +1717,7 @@
     searchClear.addEventListener("click", () => {
       searchInput.value = "";
       searchClear.classList.remove("show");
+      searchBtn.classList.remove("active");
       currentSearch = "";
       searchStatus.style.display = "none";
       renderPage(currentPage, true);
