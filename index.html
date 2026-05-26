@@ -6,24 +6,11 @@
   <title>Premium Movie Blog</title>
 
   <link rel="preload" as="fetch" href="json/posts1.json" type="application/json">
+  <script src="script.js" defer></script>
 
-<script src="script.js" defer></script>
+  <meta content="no-referrer" name="referrer"/>
 
-
-<meta content='no-referrer' name='referrer'/>
-  
-  
-  
-  
-
-  <meta content='https://hashgen.website' data-id='d1' name='video-domain'/>
-
-    <!--<meta name="video-domain" content="#2" data-id="d2"/>
-      
-<meta name="video-domain" content="#3" data-id="d3"/>-->
-  
-
-
+  <meta content="https://hashgen.website" data-id="d1" name="video-domain"/>
 
   <style>
     *{
@@ -43,25 +30,302 @@
         #0f0f0f;
       color:#fff;
       font-family:Arial,sans-serif;
-      padding:14px;
       overflow-x:hidden;
       overflow-anchor:none;
     }
 
-    h1{
-      text-align:center;
-      font-size:34px;
-      font-weight:800;
-      margin-bottom:28px;
-      letter-spacing:.5px;
-      background:linear-gradient(90deg,#fff,#bbb);
-      -webkit-background-clip:text;
-      -webkit-text-fill-color:transparent;
+    body.sidebar-open{
+      overflow:hidden;
     }
 
-    .page-badge{
+    /* =========================
+       TOP HEADER
+    ========================= */
+    .topbar{
       position:sticky;
-      top:12px;
+      top:0;
+      z-index:10000;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      padding:14px 16px;
+      background:rgba(10,10,10,.72);
+      backdrop-filter:blur(16px);
+      border-bottom:1px solid rgba(255,255,255,.08);
+      box-shadow:0 10px 30px rgba(0,0,0,.22);
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width:0;
+      text-decoration:none;
+      color:#fff;
+    }
+
+    .brand-logo{
+      width:44px;
+      height:44px;
+      border-radius:14px;
+      display:grid;
+      place-items:center;
+      background:linear-gradient(135deg,#ff004c,#ff8a00);
+      box-shadow:0 10px 25px rgba(255,0,76,.25);
+      flex:0 0 auto;
+      font-size:22px;
+      font-weight:900;
+    }
+
+    .brand-text{
+      min-width:0;
+    }
+
+    .brand-text h1{
+      font-size:18px;
+      line-height:1.2;
+      margin:0;
+      font-weight:900;
+      letter-spacing:.4px;
+      background:linear-gradient(90deg,#fff,#d0d0d0);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      text-align:left;
+    }
+
+    .brand-text p{
+      font-size:12px;
+      color:#a8a8a8;
+      margin-top:2px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .menu-btn{
+      width:46px;
+      height:46px;
+      border:none;
+      outline:none;
+      border-radius:14px;
+      background:rgba(255,255,255,.08);
+      color:#fff;
+      display:grid;
+      place-items:center;
+      cursor:pointer;
+      transition:.25s ease;
+      flex:0 0 auto;
+    }
+
+    .menu-btn:hover{
+      background:rgba(255,255,255,.14);
+      transform:translateY(-1px);
+    }
+
+    .menu-lines{
+      width:20px;
+      height:14px;
+      position:relative;
+    }
+
+    .menu-lines span{
+      position:absolute;
+      left:0;
+      width:100%;
+      height:2px;
+      background:#fff;
+      border-radius:2px;
+      transition:.25s ease;
+    }
+
+    .menu-lines span:nth-child(1){ top:0; }
+    .menu-lines span:nth-child(2){ top:6px; }
+    .menu-lines span:nth-child(3){ bottom:0; }
+
+    /* =========================
+       SIDEBAR
+    ========================= */
+    .sidebar-overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.62);
+      opacity:0;
+      visibility:hidden;
+      transition:.25s ease;
+      z-index:12000;
+    }
+
+    .sidebar-overlay.active{
+      opacity:1;
+      visibility:visible;
+    }
+
+    .sidebar{
+      position:fixed;
+      top:0;
+      left:0;
+      width:min(320px,88vw);
+      height:100vh;
+      background:
+        linear-gradient(180deg,rgba(24,24,24,.98),rgba(13,13,13,.98));
+      border-right:1px solid rgba(255,255,255,.08);
+      box-shadow:20px 0 50px rgba(0,0,0,.45);
+      transform:translateX(-100%);
+      transition:.28s ease;
+      z-index:13000;
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+    }
+
+    .sidebar.active{
+      transform:translateX(0);
+    }
+
+    .sidebar-header{
+      padding:18px 18px 16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      background:linear-gradient(180deg,rgba(255,255,255,.04),transparent);
+    }
+
+    .sidebar-profile{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width:0;
+    }
+
+    .sidebar-avatar{
+      width:46px;
+      height:46px;
+      border-radius:14px;
+      background:linear-gradient(135deg,#ff004c,#ff8a00);
+      display:grid;
+      place-items:center;
+      font-size:20px;
+      font-weight:900;
+      box-shadow:0 10px 25px rgba(255,0,76,.25);
+      flex:0 0 auto;
+    }
+
+    .sidebar-profile h2{
+      font-size:17px;
+      line-height:1.2;
+      margin:0;
+    }
+
+    .sidebar-profile p{
+      font-size:12px;
+      color:#a8a8a8;
+      margin-top:3px;
+    }
+
+    .sidebar-close{
+      width:40px;
+      height:40px;
+      border:none;
+      outline:none;
+      border-radius:12px;
+      background:rgba(255,255,255,.08);
+      color:#fff;
+      font-size:24px;
+      cursor:pointer;
+    }
+
+    .sidebar-content{
+      padding:16px 12px 20px;
+      overflow:auto;
+    }
+
+    .sidebar-section{
+      margin-bottom:18px;
+    }
+
+    .sidebar-section-title{
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:1.4px;
+      color:#8e8e8e;
+      margin:0 10px 10px;
+    }
+
+    .sidebar-link{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      width:100%;
+      padding:13px 14px;
+      border-radius:14px;
+      color:#f3f3f3;
+      text-decoration:none;
+      font-size:14px;
+      font-weight:700;
+      background:transparent;
+      transition:.22s ease;
+      border:1px solid transparent;
+    }
+
+    .sidebar-link:hover{
+      background:rgba(255,255,255,.06);
+      border-color:rgba(255,255,255,.07);
+      transform:translateX(4px);
+    }
+
+    .sidebar-link .icon{
+      width:28px;
+      height:28px;
+      border-radius:10px;
+      display:grid;
+      place-items:center;
+      background:rgba(255,255,255,.08);
+      flex:0 0 auto;
+    }
+
+    .sidebar-note{
+      margin:6px 10px 0;
+      font-size:13px;
+      color:#b8b8b8;
+      line-height:1.55;
+    }
+
+    /* =========================
+       MAIN WRAPPER
+    ========================= */
+    .app{
+      padding:16px;
+    }
+
+    .hero{
+      max-width:1400px;
+      margin:0 auto 18px;
+      padding:18px;
+      border-radius:24px;
+      background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.06);
+      box-shadow:0 10px 30px rgba(0,0,0,.18);
+    }
+
+    .hero h2{
+      font-size:30px;
+      line-height:1.25;
+      margin-bottom:8px;
+    }
+
+    .hero p{
+      color:#b8b8b8;
+      font-size:14px;
+      line-height:1.7;
+      max-width:760px;
+    }
+
+    #pageBadge{
+      position:sticky;
+      top:78px;
       z-index:999;
       width:fit-content;
       margin-left:auto;
@@ -79,11 +343,24 @@
       box-shadow:0 8px 24px rgba(0,0,0,.25);
     }
 
+    h1.page-title{
+      text-align:center;
+      font-size:34px;
+      font-weight:800;
+      margin-bottom:28px;
+      letter-spacing:.5px;
+      background:linear-gradient(90deg,#fff,#bbb);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+    }
+
     .grid{
       display:grid;
       grid-template-columns:repeat(6,minmax(0,1fr));
       gap:18px;
       align-items:start;
+      max-width:1400px;
+      margin:0 auto;
     }
 
     @media(max-width:1300px){
@@ -103,12 +380,41 @@
         grid-template-columns:repeat(3,1fr);
         gap:10px;
       }
+
+      .hero h2{
+        font-size:24px;
+      }
+
+      h1.page-title{
+        font-size:28px;
+      }
+
+      .topbar{
+        padding:12px 12px;
+      }
+
+      .brand-text h1{
+        font-size:16px;
+      }
+
+      .brand-text p{
+        font-size:11px;
+      }
     }
 
     @media(max-width:480px){
       .grid{
-        grid-template-columns:repeat(3,1fr);
-        gap:8px;
+        grid-template-columns:repeat(2,1fr);
+        gap:10px;
+      }
+
+      .hero{
+        padding:14px;
+        border-radius:18px;
+      }
+
+      .hero p{
+        font-size:13px;
       }
     }
 
@@ -246,12 +552,14 @@
     }
 
     .pagination{
-      margin-top:40px;
+      margin:40px auto 0;
       display:flex;
       justify-content:center;
       align-items:center;
       gap:14px;
       flex-wrap:wrap;
+      max-width:1400px;
+      padding-bottom:12px;
     }
 
     .nav-btn{
@@ -295,7 +603,7 @@
     #detailView{
       display:none;
       max-width:1000px;
-      margin:auto;
+      margin:0 auto;
       background:linear-gradient(180deg,#1c1c1c,#131313);
       border:1px solid rgba(255,255,255,.06);
       border-radius:24px;
@@ -608,25 +916,109 @@
 
 <body>
 
-  <div id="pageBadge" class="page-badge"></div>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-  <h1>Latest Movies</h1>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-profile">
+        <div class="sidebar-avatar">M</div>
+        <div>
+          <h2>Premium Movies</h2>
+          <p>Fast, clean, modern</p>
+        </div>
+      </div>
+      <button class="sidebar-close" id="sidebarClose" aria-label="Close menu">×</button>
+    </div>
 
-  <div id="posts" class="grid"></div>
+    <div class="sidebar-content">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Navigation</div>
+        <a class="sidebar-link" href="#top" id="menuHome">
+          <span class="icon">⌂</span>
+          <span>Home</span>
+        </a>
+        <a class="sidebar-link" href="#latestSection">
+          <span class="icon">★</span>
+          <span>Latest Movies</span>
+        </a>
+        <a class="sidebar-link" href="#relatedPostsSection">
+          <span class="icon">☰</span>
+          <span>Related Posts</span>
+        </a>
+      </div>
 
-  <div class="pagination" id="pagination">
-    <a id="prevBtn" class="nav-btn" href="?page=1">Prev</a>
-    <span id="pageNum">1</span>
-    <a id="nextBtn" class="nav-btn" href="?page=2">Next</a>
-  </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Sections</div>
+        <a class="sidebar-link" href="#top">
+          <span class="icon">▶</span>
+          <span>Trending Now</span>
+        </a>
+        <a class="sidebar-link" href="#top">
+          <span class="icon">✦</span>
+          <span>New Releases</span>
+        </a>
+        <a class="sidebar-link" href="#top">
+          <span class="icon">☻</span>
+          <span>Top Picks</span>
+        </a>
+      </div>
 
-  <div id="detailView">
-    <a id="backBtn" class="nav-btn" style="margin-bottom:20px; display:inline-flex;" href="?page=1">⬅ Back</a>
-    <div id="detailContent"></div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">About</div>
+        <p class="sidebar-note">
+          Browse the newest movie posts, open details instantly, and use the menu for quick navigation.
+        </p>
+      </div>
+    </div>
+  </aside>
 
-    <div id="relatedPostsSection" style="display:none;">
-      <h2>Related Posts</h2>
-      <div id="relatedPosts" class="grid"></div>
+  <header class="topbar" id="top">
+    <a class="brand" href="?page=1" aria-label="Home">
+      <div class="brand-logo">M</div>
+      <div class="brand-text">
+        <h1>Premium Movie Blog</h1>
+        <p>Latest movies, clean layout, quick browsing</p>
+      </div>
+    </a>
+
+    <button class="menu-btn" id="menuBtn" aria-label="Open menu">
+      <div class="menu-lines" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </button>
+  </header>
+
+  <div class="app">
+    <div id="pageBadge" class="page-badge"></div>
+
+    <section class="hero">
+      <h2>Discover movies in a polished blog style</h2>
+      <p>
+        Browse the latest uploads, open any post instantly, and move through pages with a clean mobile-friendly interface.
+      </p>
+    </section>
+
+    <h1 class="page-title">Latest Movies</h1>
+
+    <div id="latestSection"></div>
+    <div id="posts" class="grid"></div>
+
+    <div class="pagination" id="pagination">
+      <a id="prevBtn" class="nav-btn" href="?page=1">Prev</a>
+      <span id="pageNum">1</span>
+      <a id="nextBtn" class="nav-btn" href="?page=2">Next</a>
+    </div>
+
+    <div id="detailView">
+      <a id="backBtn" class="nav-btn" style="margin-bottom:20px; display:inline-flex;" href="?page=1">⬅ Back</a>
+      <div id="detailContent"></div>
+
+      <div id="relatedPostsSection" style="display:none;">
+        <h2>Related Posts</h2>
+        <div id="relatedPosts" class="grid"></div>
+      </div>
     </div>
   </div>
 
@@ -646,6 +1038,11 @@
     const relatedPostsEl = document.getElementById("relatedPosts");
     const pageBadge = document.getElementById("pageBadge");
 
+    const menuBtn = document.getElementById("menuBtn");
+    const sidebar = document.getElementById("sidebar");
+    const sidebarOverlay = document.getElementById("sidebarOverlay");
+    const sidebarClose = document.getElementById("sidebarClose");
+
     let currentPage = 1;
     let ALL_POSTS = [];
     let loadedFileIndexes = new Set();
@@ -661,6 +1058,26 @@
         left: 0,
         behavior: "auto"
       });
+    }
+
+    function openSidebar(){
+      sidebar.classList.add("active");
+      sidebarOverlay.classList.add("active");
+      document.body.classList.add("sidebar-open");
+    }
+
+    function closeSidebar(){
+      sidebar.classList.remove("active");
+      sidebarOverlay.classList.remove("active");
+      document.body.classList.remove("sidebar-open");
+    }
+
+    function toggleSidebar(){
+      if(sidebar.classList.contains("active")){
+        closeSidebar();
+      }else{
+        openSidebar();
+      }
     }
 
     function slugify(text){
@@ -873,6 +1290,7 @@
 
     async function openPost(slug, addHistory = true){
       scrollToTopNow();
+      closeSidebar();
       showDetail();
 
       detailContent.innerHTML = `<div class="loading">Loading post...</div>`;
@@ -928,6 +1346,7 @@
 
     async function renderPage(page, addHistory = true){
       scrollToTopNow();
+      closeSidebar();
       postsEl.innerHTML = `<div class="loading">Loading Premium Movies...</div>`;
 
       showHome();
@@ -971,6 +1390,7 @@
 
     async function initFromURL(){
       scrollToTopNow();
+      closeSidebar();
 
       const params = new URLSearchParams(window.location.search);
       const page = parseInt(params.get("page") || "1", 10);
@@ -990,6 +1410,7 @@
 
     prevBtn.addEventListener("click", (e) => {
       e.preventDefault();
+      closeSidebar();
       if(prevBtn.classList.contains("disabled")) return;
       if(currentPage > 1){
         renderPage(currentPage - 1, true);
@@ -998,13 +1419,23 @@
 
     nextBtn.addEventListener("click", (e) => {
       e.preventDefault();
+      closeSidebar();
       if(nextBtn.classList.contains("disabled")) return;
       renderPage(currentPage + 1, true);
     });
 
     backBtn.addEventListener("click", (e) => {
       e.preventDefault();
+      closeSidebar();
       history.back();
+    });
+
+    menuBtn.addEventListener("click", toggleSidebar);
+    sidebarClose.addEventListener("click", closeSidebar);
+    sidebarOverlay.addEventListener("click", closeSidebar);
+
+    document.addEventListener("keydown", (e) => {
+      if(e.key === "Escape") closeSidebar();
     });
 
     window.addEventListener("popstate", () => {
