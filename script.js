@@ -1,4 +1,10 @@
 
+(() => {
+
+  /* =========================
+     SETTINGS
+  ========================= */
+
   const POSTS_PER_PAGE = 24;
   const MAX_JSON_FILES = 500;
 
@@ -15,7 +21,7 @@
   function readDomains() {
     document
       .querySelectorAll('meta[name="video-domain"]')
-      .forEach((meta) => {
+      .forEach(meta => {
         const id = meta.dataset.id;
         if (id) {
           domainMap[id] = meta.content || "";
@@ -28,7 +34,7 @@
   ========================= */
 
   function setPoster(root = document) {
-    root.querySelectorAll(".video-wrapper").forEach((wrapper) => {
+    root.querySelectorAll(".video-wrapper").forEach(wrapper => {
       const posterBox = wrapper.querySelector(".video-poster");
       if (!posterBox) return;
       if (posterBox.dataset.ready) return;
@@ -86,7 +92,7 @@
      PLAY VIDEO
   ========================= */
 
-  window.playVideo = function (el) {
+  window.playVideo = function(el) {
     const wrapper = el.closest(".video-wrapper");
     if (!wrapper) return;
 
@@ -95,6 +101,7 @@
     if (!iframe) return;
 
     el.style.display = "none";
+
     if (poster) {
       poster.style.display = "none";
     }
@@ -121,9 +128,8 @@
 
     const finalTarget = path.startsWith("http") ? path : domain + path;
 
-    const url = `${countdownPage}?target=${encodeURIComponent(
-      finalTarget
-    )}&d=${encodeURIComponent(domainKey)}`;
+    const url =
+      `${countdownPage}?target=${encodeURIComponent(finalTarget)}&d=${encodeURIComponent(domainKey)}`;
 
     window.location.href = url;
   }
@@ -182,7 +188,6 @@
 
     preload.onload = () => {
       popupImg.src = preload.src;
-
       requestAnimationFrame(() => {
         popupImg.style.opacity = "1";
       });
@@ -227,6 +232,10 @@
     updatePopupImage();
   }
 
+  /* =========================
+     POSTS / PAGE STATE
+  ========================= */
+
   const postsEl = document.getElementById("posts");
   const detailView = document.getElementById("detailView");
   const detailContent = document.getElementById("detailContent");
@@ -265,7 +274,7 @@
     window.scrollTo({
       top: 0,
       left: 0,
-      behavior: "auto",
+      behavior: "auto"
     });
   }
 
@@ -302,10 +311,7 @@
   }
 
   function slugify(text) {
-    return text
-      .toString()
-      .toLowerCase()
-      .trim()
+    return text.toString().toLowerCase().trim()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, "");
   }
@@ -324,8 +330,8 @@
 
   function getLabels(post) {
     const labels = (post.category || [])
-      .map((c) => c.term)
-      .filter((label) => {
+      .map(c => c.term)
+      .filter(label => {
         if (!label) return false;
         const l = label.toLowerCase().trim();
         return l !== "movies" && l !== "trending";
@@ -350,10 +356,7 @@
           <div class="title">${title}</div>
 
           <div class="labels">
-            ${labels
-              .slice(0, 6)
-              .map((label) => `<span class="label">${label}</span>`)
-              .join("")}
+            ${labels.slice(0, 6).map(label => `<span class="label">${label}</span>`).join("")}
           </div>
         </div>
       </a>
@@ -390,7 +393,7 @@
     }
 
     const atKnownLastPage =
-      noMoreFiles && currentPage * POSTS_PER_PAGE >= ALL_POSTS.length;
+      noMoreFiles && (currentPage * POSTS_PER_PAGE >= ALL_POSTS.length);
 
     if (atKnownLastPage || currentSearch) {
       nextBtn.classList.add("disabled");
@@ -491,13 +494,9 @@
 
   async function findPostBySlug(slug) {
     while (!noMoreFiles) {
-      const found = ALL_POSTS.find(
-        (p) => slugify(p.title?.$t || "") === slug
-      );
+      const found = ALL_POSTS.find(p => slugify(p.title?.$t || "") === slug);
       if (found) {
-        const index = ALL_POSTS.findIndex(
-          (p) => slugify(p.title?.$t || "") === slug
-        );
+        const index = ALL_POSTS.findIndex(p => slugify(p.title?.$t || "") === slug);
         const page = Math.floor(index / POSTS_PER_PAGE) + 1;
         return { post: found, page };
       }
@@ -506,13 +505,9 @@
       if (!ok) break;
     }
 
-    const finalFound = ALL_POSTS.find(
-      (p) => slugify(p.title?.$t || "") === slug
-    );
+    const finalFound = ALL_POSTS.find(p => slugify(p.title?.$t || "") === slug);
     if (finalFound) {
-      const index = ALL_POSTS.findIndex(
-        (p) => slugify(p.title?.$t || "") === slug
-      );
+      const index = ALL_POSTS.findIndex(p => slugify(p.title?.$t || "") === slug);
       const page = Math.floor(index / POSTS_PER_PAGE) + 1;
       return { post: finalFound, page };
     }
@@ -528,10 +523,7 @@
       <h1 class="detail-title">${title}</h1>
 
       <div class="labels" style="margin-bottom:18px;">
-        ${labels
-          .slice(0, 8)
-          .map((label) => `<span class="label">${label}</span>`)
-          .join("")}
+        ${labels.slice(0, 8).map(label => `<span class="label">${label}</span>`).join("")}
       </div>
     `;
   }
@@ -544,7 +536,7 @@
       relatedPostsEl.innerHTML = `<div class="loading">Loading related posts...</div>`;
 
       const relatedPosts = ALL_POSTS
-        .filter((post) => slugify(post.title?.$t || "") !== currentSlug)
+        .filter(post => slugify(post.title?.$t || "") !== currentSlug)
         .slice(0, 24);
 
       if (!relatedPosts.length) {
@@ -553,7 +545,7 @@
         return;
       }
 
-      relatedPostsEl.innerHTML = relatedPosts.map((post) => createCard(post)).join("");
+      relatedPostsEl.innerHTML = relatedPosts.map(post => createCard(post)).join("");
     } catch (e) {
       relatedPostsSection.style.display = "block";
       relatedPostsEl.innerHTML = `<div class="loading">Failed to load related posts</div>`;
@@ -635,7 +627,10 @@
 
     await ensurePostsForPage(page);
 
-    const totalLoadedPages = Math.max(1, Math.ceil(ALL_POSTS.length / POSTS_PER_PAGE));
+    const totalLoadedPages = Math.max(
+      1,
+      Math.ceil(ALL_POSTS.length / POSTS_PER_PAGE)
+    );
 
     currentPage = Math.min(Math.max(1, page), totalLoadedPages);
 
@@ -643,7 +638,7 @@
     const end = start + POSTS_PER_PAGE;
     const pagePosts = ALL_POSTS.slice(start, end);
 
-    postsEl.innerHTML = pagePosts.map((post) => createCard(post)).join("");
+    postsEl.innerHTML = pagePosts.map(post => createCard(post)).join("");
     pageNumEl.innerText = currentPage;
 
     const prevPage = currentPage > 1 ? currentPage - 1 : 1;
@@ -701,13 +696,11 @@
 
     await ensureAllPostsLoaded();
 
-    const results = ALL_POSTS.filter((post) => matchesSearch(post, q));
+    const results = ALL_POSTS.filter(post => matchesSearch(post, q));
 
     if (results.length) {
-      postsEl.innerHTML = results.map((post) => createCard(post)).join("");
-      searchStatus.textContent = `Showing ${results.length} result${
-        results.length === 1 ? "" : "s"
-      } for “${currentSearch}”`;
+      postsEl.innerHTML = results.map(post => createCard(post)).join("");
+      searchStatus.textContent = `Showing ${results.length} result${results.length === 1 ? "" : "s"} for “${currentSearch}”`;
     } else {
       postsEl.innerHTML = `<div class="loading">No results found for “${currentSearch}”</div>`;
       searchStatus.textContent = `No results found for “${currentSearch}”`;
@@ -785,87 +778,11 @@
     scrollToTopNow();
   }
 
-  prevBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    closeSidebar();
-    if (prevBtn.classList.contains("disabled")) return;
-    if (currentPage > 1 && !currentSearch) {
-      renderPage(currentPage - 1, true);
-    }
-  });
-
-  nextBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    closeSidebar();
-    if (nextBtn.classList.contains("disabled")) return;
-    if (!currentSearch) {
-      renderPage(currentPage + 1, true);
-    }
-  });
-
-  backBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    closeSidebar();
-    history.back();
-  });
-
-  searchBtn.addEventListener("click", () => {
-    searchInput.focus();
-    searchInput.select();
-    searchBtn.classList.add("active");
-  });
-
-  searchInput.addEventListener("focus", () => {
-    searchBtn.classList.add("active");
-  });
-
-  searchInput.addEventListener("blur", () => {
-    if (!searchInput.value.trim()) {
-      searchBtn.classList.remove("active");
-    }
-  });
-
-  menuBtn.addEventListener("click", toggleSidebar);
-  sidebarClose.addEventListener("click", closeSidebar);
-  sidebarOverlay.addEventListener("click", closeSidebar);
-
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeSidebar();
-  });
-
-  searchInput.addEventListener("input", handleSearchInput);
-
-  searchInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      clearTimeout(searchTimer);
-      renderSearchResults(searchInput.value, true);
-    }
-  });
-
-  searchClear.addEventListener("click", () => {
-    searchInput.value = "";
-    searchClear.classList.remove("show");
-    searchBtn.classList.remove("active");
-    currentSearch = "";
-    searchStatus.style.display = "none";
-    renderPage(currentPage, true);
-    searchInput.focus();
-  });
-
-  window.addEventListener("popstate", () => {
-    if (popup && popup.classList.contains("active")) {
-      closePopup();
-    }
-
-    initFromURL();
-  });
-
   /* =========================
      CLICK EVENTS
   ========================= */
 
-  document.addEventListener("click", (e) => {
+  document.addEventListener("click", e => {
     /* ========= DOWNLOAD ========= */
 
     const downloadBtn = e.target.closest(".button-link");
@@ -938,23 +855,40 @@
      KEYBOARD
   ========================= */
 
-  document.addEventListener("keydown", (e) => {
-    if (!popup || !popup.classList.contains("active")) return;
+  document.addEventListener("keydown", e => {
+    if (popup && popup.classList.contains("active")) {
+      switch (e.key) {
+        case "ArrowRight":
+          nextImage();
+          break;
 
-    switch (e.key) {
-      case "ArrowRight":
-        nextImage();
-        break;
+        case "ArrowLeft":
+          prevImage();
+          break;
 
-      case "ArrowLeft":
-        prevImage();
-        break;
-
-      case "Escape":
-        closePopup();
-        history.back();
-        break;
+        case "Escape":
+          closePopup();
+          history.back();
+          break;
+      }
+      return;
     }
+
+    if (e.key === "Escape") {
+      closeSidebar();
+    }
+  });
+
+  /* =========================
+     BACK BUTTON
+  ========================= */
+
+  window.addEventListener("popstate", () => {
+    if (popup && popup.classList.contains("active")) {
+      closePopup();
+    }
+
+    initFromURL();
   });
 
   /* =========================
@@ -966,7 +900,7 @@
 
   document.addEventListener(
     "touchstart",
-    (e) => {
+    e => {
       if (!popup || !popup.classList.contains("active")) return;
       touchStartX = e.changedTouches[0].screenX;
     },
@@ -975,7 +909,7 @@
 
   document.addEventListener(
     "touchend",
-    (e) => {
+    e => {
       if (!popup || !popup.classList.contains("active")) return;
 
       touchEndX = e.changedTouches[0].screenX;
@@ -1001,7 +935,89 @@
 
   observer.observe(document.body, {
     childList: true,
-    subtree: true,
+    subtree: true
   });
 
-  initFromURL();
+  /* =========================
+     OTHER EVENTS
+  ========================= */
+
+  prevBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    closeSidebar();
+    if (prevBtn.classList.contains("disabled")) return;
+    if (currentPage > 1 && !currentSearch) {
+      renderPage(currentPage - 1, true);
+    }
+  });
+
+  nextBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    closeSidebar();
+    if (nextBtn.classList.contains("disabled")) return;
+    if (!currentSearch) {
+      renderPage(currentPage + 1, true);
+    }
+  });
+
+  backBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    closeSidebar();
+    history.back();
+  });
+
+  searchBtn.addEventListener("click", () => {
+    searchInput.focus();
+    searchInput.select();
+    searchBtn.classList.add("active");
+  });
+
+  searchInput.addEventListener("focus", () => {
+    searchBtn.classList.add("active");
+  });
+
+  searchInput.addEventListener("blur", () => {
+    if (!searchInput.value.trim()) {
+      searchBtn.classList.remove("active");
+    }
+  });
+
+  menuBtn.addEventListener("click", toggleSidebar);
+  sidebarClose.addEventListener("click", closeSidebar);
+  sidebarOverlay.addEventListener("click", closeSidebar);
+
+  searchInput.addEventListener("input", handleSearchInput);
+
+  searchInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      clearTimeout(searchTimer);
+      renderSearchResults(searchInput.value, true);
+    }
+  });
+
+  searchClear.addEventListener("click", () => {
+    searchInput.value = "";
+    searchClear.classList.remove("show");
+    searchBtn.classList.remove("active");
+    currentSearch = "";
+    searchStatus.style.display = "none";
+    renderPage(currentPage, true);
+    searchInput.focus();
+  });
+
+  /* =========================
+     INIT
+  ========================= */
+
+  function init() {
+    initFromURL();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+
+})();
