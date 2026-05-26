@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Loading...</title>
+
+  <meta content="no-referrer" name="referrer" />
+  <meta content="https://hashgen.website" data-id="d1" name="video-domain" />
+
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{
+      background:radial-gradient(circle at top,#1c1c1c 0%,#0f0f0f 45%),#0f0f0f;
+      color:#fff;font-family:Arial,sans-serif;overflow-x:hidden
+    }
+    .wrap{
+      max-width:1000px;margin:0 auto;padding:20px
+    }
+    .back-btn{
+      display:inline-flex;align-items:center;justify-content:center;
+      text-decoration:none;background:linear-gradient(135deg,#ff004c,#ff5e00);
+      color:#fff;padding:12px 18px;border-radius:14px;font-size:14px;font-weight:700;
+      margin-bottom:20px
+    }
+    h1{
+      font-size:34px;line-height:1.4;margin-bottom:18px
+    }
+    .labels{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
+    .label{
+      display:inline-block;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.08);
+      color:#f1f1f1;font-size:10px;font-weight:600;padding:5px 9px;border-radius:40px;white-space:nowrap
+    }
+    .detail-body{
+      line-height:1.8;color:#eaeaea;background:linear-gradient(180deg,#1c1c1c,#131313);
+      border:1px solid rgba(255,255,255,.06);border-radius:24px;padding:22px;box-shadow:0 15px 40px rgba(0,0,0,.45)
+    }
+    .detail-body img{max-width:100%;height:auto;border-radius:14px}
+    .detail-body iframe,.detail-body video{max-width:100%}
+    .loading{padding:60px 20px;text-align:center;font-size:18px;color:#ddd}
+    @media (max-width: 768px){
+      .wrap{padding:14px}
+      h1{font-size:28px}
+      .detail-body{padding:16px;border-radius:18px}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="back-btn" href="index.html">← Back</a>
+    <h1 id="postTitle">Loading...</h1>
+    <div id="postMeta" class="labels"></div>
+    <div id="postContent" class="detail-body">
+      <div class="loading">Loading post...</div>
+    </div>
+  </div>
+
+  <script>
+    const MAX_JSON_FILES = 500;
+    const postTitleEl = document.getElementById("postTitle");
+    const postMetaEl = document.getElementById("postMeta");
+    const postContentEl = document.getElementById("postContent");
+
+    function slugify(text){
+      return text.toString().toLowerCase().trim()
+        .replace(/[^a-z0-9]+/g,'-')
+        .replace(/(^-|-$)/g,'');
+    }
+
+    function getLabels(post){
+      return (post.category || [])
+        .map(c => c.term)
+        .filter(label => {
+          if(!label) return false;
+          const l = label.toLowerCase().trim();
+          return l !== "movies" && l !== "trending";
+        });
+    }
+
+    function cleanContentHtml(html){
+      return (html || "")
+        .replace(/<h1(\s|>)/gi, "<h2$1")
+        .replace(/<\/h1>/gi, "</h2>");
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const slug = params.get("post") || "";
+
+    async function loadPost(){
+      for(let i = 1; i <= MAX_JSON_FILES; i++){
+        try{
+          const res = await fetch(`json/posts${i}.json`, { cache: "force-cache" });
+          if(!res.ok) continue;
+
+          const data = await res.json();
+          const posts = data.feed?.entry || [];
+
+          const post = posts.find(p => slugify(p.title?.$t || "") === slug);
+          if(post){
+            const title = post.title?.$t || "No Title";
+            const content = cleanContentHtml(post.content?.$t || "");
+            const labels = getLabels(post);
+
+            document.title = title;
+            postTitleEl.innerText = title;
+            postMetaEl.innerHTML = labels.map(label => `<span class="label">${label}</span>`).join("");
+            postContentEl.innerHTML = content || "<div class='loading'>No content found</div>";
+            return;
+          }
+        }catch(e){}
+      }
+
+      document.title = "Post Not Found";
+      postTitleEl.innerText = "Post Not Found";
+      postMetaEl.innerHTML = "";
+      postContentEl.innerHTML = "<div class='loading'>This post could not be found.</div>";
+    }
+
+    loadPost();
+  </script>
+</body>
+</html>
