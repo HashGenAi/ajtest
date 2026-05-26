@@ -127,9 +127,9 @@ export async function onRequest(context) {
 <meta content="no-referrer" name="referrer"/>
 <meta content="https://hashgen.website" data-id="d1" name="video-domain"/>
 
-<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="style.css">
 <link rel="preload" as="fetch" href="/json/posts1.json" type="application/json">
-<script src="/script.js" defer></script>
+<script src="script.js" defer></script>
 </head>
 
 <body>
