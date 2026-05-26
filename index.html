@@ -298,7 +298,7 @@ button:disabled{
 </div>
 
 <div id="detailView">
-  <button onclick="goBack()" style="margin-bottom:20px;">⬅ Back</button>
+  <button id="backBtn" style="margin-bottom:20px;">⬅ Back</button>
   <div id="detailContent"></div>
 
   <div id="relatedPostsSection" style="display:none;">
@@ -322,6 +322,7 @@ const pagination = document.getElementById("pagination");
 const pageNumEl = document.getElementById("pageNum");
 const prevBtn = document.getElementById("prevBtn");
 const nextBtn = document.getElementById("nextBtn");
+const backBtn = document.getElementById("backBtn");
 const relatedPostsSection = document.getElementById("relatedPostsSection");
 const relatedPostsEl = document.getElementById("relatedPosts");
 
@@ -400,9 +401,9 @@ async function loadRelatedPosts(currentSlug){
 
     relatedPostsData = data.posts || [];
 
-    const relatedPosts = relatedPostsData.filter(post =>
-      slugify(post.title?.$t || "") !== currentSlug
-    ).slice(0,24);
+    const relatedPosts = relatedPostsData
+      .filter(post => slugify(post.title?.$t || "") !== currentSlug)
+      .slice(0,24);
 
     if(!relatedPosts.length){
       relatedPostsSection.style.display = "none";
@@ -418,7 +419,7 @@ async function loadRelatedPosts(currentSlug){
   }
 }
 
-function openPost(slug){
+function openPost(slug, addHistory = true){
   const post = findPostBySlug(slug);
 
   if(!post){
@@ -438,7 +439,10 @@ function openPost(slug){
     <div>${content}</div>
   `;
 
-  history.pushState({ slug }, "", "?post=" + slug);
+  if(addHistory){
+    const url = `?page=${currentPage}&post=${slug}`;
+    history.pushState({ page: currentPage, post: slug }, "", url);
+  }
 
   loadRelatedPosts(slug);
 
@@ -449,70 +453,116 @@ function openPost(slug){
 }
 
 function goBack(){
-  showHome();
-  relatedPostsSection.style.display = "none";
-  relatedPostsEl.innerHTML = "";
-  history.pushState({}, "", window.location.pathname);
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
-  });
+  history.back();
 }
 
-function checkURL(){
-  const params = new URLSearchParams(window.location.search);
-  const slug = params.get("post");
-  if(slug && allPosts.length){
-    openPost(slug);
-  }
-}
+function renderPage(page, addHistory = true){
+  currentPage = page;
+  pageNumEl.innerText = page;
+  prevBtn.disabled = page <= 1;
 
-async function loadPosts(page){
   postsEl.innerHTML = `<div class="loading">Loading Premium Movies...</div>`;
 
-  try{
-    const res = await fetch(`${API}?page=${page}&limit=${POSTS_PER_PAGE}`);
-    const data = await res.json();
+  fetch(`${API}?page=${page}&limit=${POSTS_PER_PAGE}`)
+    .then(res => res.json())
+    .then(data => {
+      allPosts = data.posts || [];
+      postsEl.innerHTML = allPosts.slice(0, POSTS_PER_PAGE).map(post => createCard(post)).join("");
+      showHome();
+      relatedPostsSection.style.display = "none";
+      relatedPostsEl.innerHTML = "";
 
-    allPosts = data.posts || [];
+      if(addHistory){
+        history.pushState({ page }, "", `?page=${page}`);
+      }
 
-    postsEl.innerHTML = allPosts.slice(0, POSTS_PER_PAGE).map(post => createCard(post)).join("");
-    pageNumEl.innerText = page;
-    prevBtn.disabled = page <= 1;
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
 
-    showHome();
-    relatedPostsSection.style.display = "none";
-    relatedPostsEl.innerHTML = "";
-    checkURL();
-
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }catch(e){
-    postsEl.innerHTML = `<div class="loading">Failed to load posts</div>`;
-  }
+      const params = new URLSearchParams(window.location.search);
+      const slug = params.get("post");
+      if(slug){
+        openPost(slug, false);
+      }
+    })
+    .catch(() => {
+      postsEl.innerHTML = `<div class="loading">Failed to load posts</div>`;
+    });
 }
 
-nextBtn.onclick = () => {
-  currentPage++;
-  loadPosts(currentPage);
-};
+function initFromURL(){
+  const params = new URLSearchParams(window.location.search);
+  const page = parseInt(params.get("page") || "1", 10);
+  const slug = params.get("post");
+
+  currentPage = Number.isFinite(page) && page > 0 ? page : 1;
+
+  postsEl.innerHTML = `<div class="loading">Loading Premium Movies...</div>`;
+
+  fetch(`${API}?page=${currentPage}&limit=${POSTS_PER_PAGE}`)
+    .then(res => res.json())
+    .then(data => {
+      allPosts = data.posts || [];
+      postsEl.innerHTML = allPosts.slice(0, POSTS_PER_PAGE).map(post => createCard(post)).join("");
+      pageNumEl.innerText = currentPage;
+      prevBtn.disabled = currentPage <= 1;
+
+      if(slug){
+        openPost(slug, false);
+      }else{
+        showHome();
+      }
+    })
+    .catch(() => {
+      postsEl.innerHTML = `<div class="loading">Failed to load posts</div>`;
+    });
+}
 
 prevBtn.onclick = () => {
   if(currentPage > 1){
-    currentPage--;
-    loadPosts(currentPage);
+    renderPage(currentPage - 1, true);
   }
 };
+
+nextBtn.onclick = () => {
+  renderPage(currentPage + 1, true);
+};
+
+backBtn.onclick = goBack;
 
 window.onpopstate = () => {
-  if(location.search.includes("post=")){
-    const slug = new URLSearchParams(location.search).get("post");
-    openPost(slug);
-  }else{
-    goBack();
-  }
+  const params = new URLSearchParams(window.location.search);
+  const page = parseInt(params.get("page") || "1", 10);
+  const slug = params.get("post");
+
+  currentPage = Number.isFinite(page) && page > 0 ? page : 1;
+  pageNumEl.innerText = currentPage;
+  prevBtn.disabled = currentPage <= 1;
+
+  postsEl.innerHTML = `<div class="loading">Loading Premium Movies...</div>`;
+
+  fetch(`${API}?page=${currentPage}&limit=${POSTS_PER_PAGE}`)
+    .then(res => res.json())
+    .then(data => {
+      allPosts = data.posts || [];
+      postsEl.innerHTML = allPosts.slice(0, POSTS_PER_PAGE).map(post => createCard(post)).join("");
+
+      if(slug){
+        openPost(slug, false);
+      }else{
+        showHome();
+        relatedPostsSection.style.display = "none";
+        relatedPostsEl.innerHTML = "";
+      }
+    })
+    .catch(() => {
+      postsEl.innerHTML = `<div class="loading">Failed to load posts</div>`;
+    });
 };
 
-loadPosts(currentPage);
+initFromURL();
 </script>
 
 </body>
