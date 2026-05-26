@@ -113,13 +113,7 @@
       position:absolute;
       inset:-2px;
       border-radius:26px;
-      background:linear-gradient(
-        135deg,
-        rgba(255,0,102,.3),
-        rgba(0,195,255,.25),
-        rgba(0,255,170,.15),
-        rgba(255,174,0,.25)
-      );
+      background:linear-gradient(135deg,rgba(255,0,102,.3),rgba(0,195,255,.25),rgba(0,255,170,.15),rgba(255,174,0,.25));
       background-size:300% 300%;
       animation:borderMove 7s linear infinite;
       opacity:0;
@@ -132,19 +126,13 @@
     }
 
     @keyframes borderMove{
-      0%{
-        background-position:0% 50%;
-      }
-      100%{
-        background-position:300% 50%;
-      }
+      0%{ background-position:0% 50%; }
+      100%{ background-position:300% 50%; }
     }
 
     .card:hover{
       transform:scale(1.02);
-      box-shadow:
-        0 20px 45px rgba(0,0,0,.55),
-        0 0 20px rgba(255,0,102,.15);
+      box-shadow:0 20px 45px rgba(0,0,0,.55),0 0 20px rgba(255,0,102,.15);
     }
 
     .poster-wrap{
@@ -160,7 +148,7 @@
       height:100%;
       object-fit:cover;
       display:block;
-      transition:transform .8s ease,filter .4s ease;
+      transition:transform .8s ease, filter .4s ease;
     }
 
     .card:hover .poster{
@@ -341,38 +329,6 @@
       color:#ddd;
     }
 
-    .post-loader{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      flex-direction:column;
-      gap:16px;
-      min-height:320px;
-      width:100%;
-    }
-
-    .post-loader-spinner{
-      width:52px;
-      height:52px;
-      border:4px solid rgba(255,255,255,.12);
-      border-top-color:#ff004c;
-      border-radius:50%;
-      animation:spinLoader .8s linear infinite;
-    }
-
-    .post-loader-text{
-      font-size:16px;
-      font-weight:700;
-      color:#ddd;
-      letter-spacing:.3px;
-    }
-
-    @keyframes spinLoader{
-      to{
-        transform:rotate(360deg);
-      }
-    }
-
     ::-webkit-scrollbar{
       width:8px;
     }
@@ -403,15 +359,7 @@
   </div>
 
   <div id="detailView">
-    <a
-      id="backBtn"
-      class="nav-btn"
-      style="margin-bottom:20px;display:inline-flex;"
-      href="?page=1"
-    >
-      ⬅ Back
-    </a>
-
+    <a id="backBtn" class="nav-btn" style="margin-bottom:20px; display:inline-flex;" href="?page=1">⬅ Back</a>
     <div id="detailContent"></div>
 
     <div id="relatedPostsSection" style="display:none;">
@@ -427,9 +375,8 @@
 
     let currentPage = 1;
     let allPosts = [];
-
+    let relatedPostsData = [];
     let postPageCache = new Map();
-    let slugPageIndex = new Map();
 
     const postsEl = document.getElementById("posts");
     const detailView = document.getElementById("detailView");
@@ -444,12 +391,9 @@
     const pageBadge = document.getElementById("pageBadge");
 
     function slugify(text){
-      return text
-        .toString()
-        .toLowerCase()
-        .trim()
-        .replace(/[^a-z0-9]+/g,"-")
-        .replace(/(^-|-$)/g,"");
+      return text.toString().toLowerCase().trim()
+        .replace(/[^a-z0-9]+/g,'-')
+        .replace(/(^-|-$)/g,'');
     }
 
     function getImage(post){
@@ -467,9 +411,7 @@
         .map(c => c.term)
         .filter(label => {
           if(!label) return false;
-
           const l = label.toLowerCase().trim();
-
           return l !== "movies" && l !== "trending";
         });
     }
@@ -479,32 +421,19 @@
       const title = post.title?.$t || "No Title";
       const labels = getLabels(post);
       const slug = slugify(title);
+      const href = `?post=${encodeURIComponent(slug)}`;
 
       return `
-        <a
-          class="card"
-          href="?post=${encodeURIComponent(slug)}"
-          data-slug="${slug}"
-        >
+        <a class="card" href="${href}" data-slug="${slug}">
           <div class="poster-wrap">
-            <img
-              class="poster"
-              src="${image}"
-              loading="lazy"
-              alt="${title}"
-            >
+            <img class="poster" src="${image}" loading="lazy" alt="${title}">
           </div>
 
           <div class="content">
             <div class="title">${title}</div>
 
             <div class="labels">
-              ${
-                labels
-                  .slice(0,6)
-                  .map(label => `<span class="label">${label}</span>`)
-                  .join("")
-              }
+              ${labels.slice(0,6).map(label => `<span class="label">${label}</span>`).join("")}
             </div>
           </div>
         </a>
@@ -521,6 +450,7 @@
         pageBadge.textContent = `Page ${currentPage}`;
       }else{
         pageBadge.style.display = "none";
+        pageBadge.textContent = "";
       }
     }
 
@@ -538,506 +468,250 @@
       updatePageBadge();
     }
 
-    function showPostLoader(){
-
-      showDetail();
-
-      detailContent.innerHTML = `
-        <div class="post-loader">
-          <div class="post-loader-spinner"></div>
-
-          <div class="post-loader-text">
-            Loading post...
-          </div>
-        </div>
-      `;
-
-      relatedPostsSection.style.display = "none";
-      relatedPostsEl.innerHTML = "";
-    }
-
     async function fetchPage(page){
-
       if(postPageCache.has(page)){
         return postPageCache.get(page);
       }
 
-      const res = await fetch(
-        `${API}?page=${page}&limit=${POSTS_PER_PAGE}`
-      );
-
+      const res = await fetch(`${API}?page=${page}&limit=${POSTS_PER_PAGE}`);
       const data = await res.json();
-
       const posts = data.posts || [];
-
-      postPageCache.set(page,posts);
-
-      posts.forEach(post => {
-
-        const slug = slugify(post.title?.$t || "");
-
-        if(slug){
-          slugPageIndex.set(slug,page);
-        }
-
-      });
-
+      postPageCache.set(page, posts);
       return posts;
     }
 
-    async function loadPageFromAPI(page,cb){
+    async function findPostBySlug(slug){
+      const searched = new Set();
 
-      postsEl.innerHTML = `
-        <div class="loading">
-          Loading Premium Movies...
-        </div>
-      `;
+      const currentPagePosts = allPosts || [];
+      let found = currentPagePosts.find(p => slugify(p.title?.$t || "") === slug);
+      if(found){
+        return { post: found, page: currentPage };
+      }
 
-      try{
+      found = relatedPostsData.find(p => slugify(p.title?.$t || "") === slug);
+      if(found){
+        return { post: found, page: currentPage };
+      }
+
+      const firstPagePosts = await fetchPage(1);
+      found = firstPagePosts.find(p => slugify(p.title?.$t || "") === slug);
+      if(found){
+        return { post: found, page: 1 };
+      }
+      searched.add(1);
+
+      for(let page = 2; page <= MAX_SEARCH_PAGES; page++){
+        if(searched.has(page)) continue;
 
         const posts = await fetchPage(page);
+        if(!posts.length) break;
 
-        allPosts = posts;
-
-        postsEl.innerHTML = allPosts
-          .slice(0,POSTS_PER_PAGE)
-          .map(post => createCard(post))
-          .join("");
-
-        pageNumEl.innerText = page;
-
-        prevBtn.href = `?page=${page > 1 ? page - 1 : 1}`;
-        nextBtn.href = `?page=${page + 1}`;
-
-        if(page <= 1){
-          prevBtn.classList.add("disabled");
-        }else{
-          prevBtn.classList.remove("disabled");
+        found = posts.find(p => slugify(p.title?.$t || "") === slug);
+        if(found){
+          return { post: found, page };
         }
 
-        updatePageBadge();
+        if(posts.length < POSTS_PER_PAGE) break;
+      }
 
-        if(typeof cb === "function"){
-          cb();
+      return null;
+    }
+
+    async function loadRelatedPosts(currentSlug){
+      try{
+        const keepY = window.scrollY;
+
+        relatedPostsSection.style.display = "block";
+        relatedPostsEl.innerHTML = `<div class="loading">Loading related posts...</div>`;
+
+        const res = await fetch(`${API}?page=1&limit=24`);
+        const data = await res.json();
+
+        relatedPostsData = data.posts || [];
+
+        const relatedPosts = relatedPostsData
+          .filter(post => slugify(post.title?.$t || "") !== currentSlug)
+          .slice(0,24);
+
+        if(!relatedPosts.length){
+          relatedPostsSection.style.display = "none";
+          relatedPostsEl.innerHTML = "";
+          return;
         }
 
+        relatedPostsEl.innerHTML = relatedPosts.map(post => createCard(post)).join("");
+
+        requestAnimationFrame(() => {
+          window.scrollTo(0, keepY);
+        });
       }catch(e){
-
-        postsEl.innerHTML = `
-          <div class="loading">
-            Failed to load posts
-          </div>
-        `;
+        relatedPostsSection.style.display = "block";
+        relatedPostsEl.innerHTML = `<div class="loading">Failed to load related posts</div>`;
       }
     }
 
-    function renderRelatedFromPage(pagePosts,currentSlug){
+    async function openPost(slug, addHistory = true){
+      showDetail();
+      detailContent.innerHTML = `<div class="loading">Loading post...</div>`;
+      relatedPostsSection.style.display = "none";
+      relatedPostsEl.innerHTML = "";
 
-      const relatedPosts = pagePosts
-        .filter(post => {
-          return slugify(post.title?.$t || "") !== currentSlug;
-        })
-        .slice(0,24);
+      const result = await findPostBySlug(slug);
 
-      if(!relatedPosts.length){
-        relatedPostsSection.style.display = "none";
-        relatedPostsEl.innerHTML = "";
+      if(!result){
+        detailContent.innerHTML = "<h2>Post not found</h2>";
+        backBtn.href = `?page=${currentPage}`;
+        updatePageBadge();
         return;
       }
 
-      relatedPostsSection.style.display = "block";
-
-      relatedPostsEl.innerHTML = relatedPosts
-        .map(post => createCard(post))
-        .join("");
-    }
-
-    function findPostInCurrentPage(slug){
-
-      return allPosts.find(post => {
-        return slugify(post.title?.$t || "") === slug;
-      }) || null;
-    }
-
-    async function openPostFromCurrentPage(slug,addHistory = true){
-
-      showPostLoader();
-
-      requestAnimationFrame(() => {
-
-        const post = findPostInCurrentPage(slug);
-
-        if(!post){
-
-          detailContent.innerHTML = `
-            <h2>Post not found</h2>
-          `;
-
-          return;
-        }
-
-        const title = post.title?.$t || "No Title";
-        const content = post.content?.$t || "";
-
-        detailContent.innerHTML = `
-          <h2 class="detail-title">${title}</h2>
-          <div>${content}</div>
-        `;
-
-        backBtn.href = `?page=${currentPage}`;
-
-        if(addHistory){
-
-          history.pushState(
-            {
-              page:currentPage,
-              post:slug
-            },
-            "",
-            `?post=${encodeURIComponent(slug)}`
-          );
-        }
-
-        updatePageBadge();
-
-        requestAnimationFrame(() => {
-          renderRelatedFromPage(allPosts,slug);
-        });
-
-      });
-    }
-
-    async function openPostBySlug(
-      slug,
-      preferredPage = null,
-      addHistory = true
-    ){
-
-      showPostLoader();
-
-      let pageToUse = preferredPage;
-
-      if(!pageToUse){
-        pageToUse = slugPageIndex.get(slug) || null;
-      }
-
-      if(pageToUse && postPageCache.has(pageToUse)){
-
-        currentPage = pageToUse;
-        pageNumEl.innerText = currentPage;
-
-        allPosts = postPageCache.get(pageToUse);
-
-        const post = findPostInCurrentPage(slug);
-
-        if(post){
-
-          const title = post.title?.$t || "No Title";
-          const content = post.content?.$t || "";
-
-          detailContent.innerHTML = `
-            <h2 class="detail-title">${title}</h2>
-            <div>${content}</div>
-          `;
-
-          showDetail();
-
-          requestAnimationFrame(() => {
-            renderRelatedFromPage(allPosts,slug);
-          });
-
-          backBtn.href = `?page=${currentPage}`;
-
-          if(addHistory){
-
-            history.pushState(
-              {
-                page:currentPage,
-                post:slug
-              },
-              "",
-              `?post=${encodeURIComponent(slug)}`
-            );
-          }
-
-          updatePageBadge();
-
-          return;
-        }
-      }
-
-      if(pageToUse){
-
-        const posts = await fetchPage(pageToUse);
-
-        currentPage = pageToUse;
-        pageNumEl.innerText = currentPage;
-
-        allPosts = posts;
-
-        const post = findPostInCurrentPage(slug);
-
-        if(post){
-
-          const title = post.title?.$t || "No Title";
-          const content = post.content?.$t || "";
-
-          detailContent.innerHTML = `
-            <h2 class="detail-title">${title}</h2>
-            <div>${content}</div>
-          `;
-
-          showDetail();
-
-          requestAnimationFrame(() => {
-            renderRelatedFromPage(allPosts,slug);
-          });
-
-          backBtn.href = `?page=${currentPage}`;
-
-          if(addHistory){
-
-            history.pushState(
-              {
-                page:currentPage,
-                post:slug
-              },
-              "",
-              `?post=${encodeURIComponent(slug)}`
-            );
-          }
-
-          updatePageBadge();
-
-          return;
-        }
-      }
-
-      for(let page = 1; page <= MAX_SEARCH_PAGES; page++){
-
-        const posts = await fetchPage(page);
-
-        if(!posts.length){
-          break;
-        }
-
-        const match = posts.find(post => {
-          return slugify(post.title?.$t || "") === slug;
-        });
-
-        if(match){
-
-          currentPage = page;
-          pageNumEl.innerText = currentPage;
-
-          allPosts = posts;
-
-          const title = match.title?.$t || "No Title";
-          const content = match.content?.$t || "";
-
-          detailContent.innerHTML = `
-            <h2 class="detail-title">${title}</h2>
-            <div>${content}</div>
-          `;
-
-          showDetail();
-
-          requestAnimationFrame(() => {
-            renderRelatedFromPage(allPosts,slug);
-          });
-
-          backBtn.href = `?page=${currentPage}`;
-
-          if(addHistory){
-
-            history.pushState(
-              {
-                page:currentPage,
-                post:slug
-              },
-              "",
-              `?post=${encodeURIComponent(slug)}`
-            );
-          }
-
-          updatePageBadge();
-
-          return;
-        }
-
-        if(posts.length < POSTS_PER_PAGE){
-          break;
-        }
-      }
+      const post = result.post;
+      const foundPage = result.page || 1;
+
+      currentPage = foundPage;
+      pageNumEl.innerText = currentPage;
+      prevBtn.href = `?page=${currentPage > 1 ? currentPage - 1 : 1}`;
+      nextBtn.href = `?page=${currentPage + 1}`;
+      backBtn.href = `?page=${foundPage}`;
+
+      const title = post.title?.$t || "No Title";
+      const content = post.content?.$t || "";
 
       detailContent.innerHTML = `
-        <h2>Post not found</h2>
+        <h2 class="detail-title">${title}</h2>
+        <div>${content}</div>
       `;
 
-      showDetail();
+      if(addHistory){
+        history.pushState(
+          { page: foundPage, post: slug },
+          "",
+          `?post=${encodeURIComponent(slug)}`
+        );
+      }
+
+      await loadRelatedPosts(slug);
+      updatePageBadge();
     }
 
-    function renderPage(page,addHistory = true){
+    function loadPageFromAPI(page, cb){
+      postsEl.innerHTML = `<div class="loading">Loading Premium Movies...</div>`;
 
+      fetch(`${API}?page=${page}&limit=${POSTS_PER_PAGE}`)
+        .then(res => res.json())
+        .then(data => {
+          allPosts = data.posts || [];
+          postPageCache.set(page, allPosts);
+
+          postsEl.innerHTML = allPosts.slice(0, POSTS_PER_PAGE).map(post => createCard(post)).join("");
+          pageNumEl.innerText = page;
+
+          const prevPage = page > 1 ? page - 1 : 1;
+          const nextPage = page + 1;
+
+          prevBtn.href = `?page=${prevPage}`;
+          nextBtn.href = `?page=${nextPage}`;
+
+          if(page <= 1){
+            prevBtn.classList.add("disabled");
+            prevBtn.setAttribute("aria-disabled", "true");
+          }else{
+            prevBtn.classList.remove("disabled");
+            prevBtn.removeAttribute("aria-disabled");
+          }
+
+          nextBtn.classList.remove("disabled");
+          nextBtn.removeAttribute("aria-disabled");
+
+          updatePageBadge();
+
+          if(typeof cb === "function") cb();
+        })
+        .catch(() => {
+          postsEl.innerHTML = `<div class="loading">Failed to load posts</div>`;
+        });
+    }
+
+    function renderPage(page, addHistory = true){
       currentPage = page;
-
       updatePageBadge();
 
-      loadPageFromAPI(page,() => {
-
+      loadPageFromAPI(page, () => {
         showHome();
-
         relatedPostsSection.style.display = "none";
         relatedPostsEl.innerHTML = "";
 
         backBtn.href = `?page=${page}`;
 
         if(addHistory){
+          history.pushState({ page }, "", `?page=${page}`);
+        }
 
-          history.pushState(
-            { page },
-            "",
-            `?page=${page}`
-          );
+        const params = new URLSearchParams(window.location.search);
+        const slug = params.get("post");
+        if(slug){
+          openPost(slug, false);
         }
       });
     }
 
     function initFromURL(){
-
       const params = new URLSearchParams(window.location.search);
-
-      const page = parseInt(
-        params.get("page") || "1",
-        10
-      );
-
+      const page = parseInt(params.get("page") || "1", 10);
       const slug = params.get("post");
 
-      currentPage = Number.isFinite(page) && page > 0
-        ? page
-        : 1;
-
+      currentPage = Number.isFinite(page) && page > 0 ? page : 1;
       pageNumEl.innerText = currentPage;
-
       updatePageBadge();
 
-      if(slug){
-
-        openPostBySlug(
-          slug,
-          Number.isFinite(page) && page > 0
-            ? page
-            : null,
-          false
-        );
-
-      }else{
-
-        loadPageFromAPI(currentPage,() => {
+      loadPageFromAPI(currentPage, async () => {
+        if(slug){
+          await openPost(slug, false);
+        }else{
           showHome();
-        });
-
-      }
+        }
+      });
     }
 
-    postsEl.addEventListener("click",e => {
-
-      const card = e.target.closest(".card");
-
-      if(!card){
-        return;
-      }
-
-      e.preventDefault();
-
-      const slug = card.dataset.slug;
-
-      openPostFromCurrentPage(slug,true);
-    });
-
-    relatedPostsEl.addEventListener("click",e => {
-
-      const card = e.target.closest(".card");
-
-      if(!card){
-        return;
-      }
-
-      e.preventDefault();
-
-      const slug = card.dataset.slug;
-
-      openPostFromCurrentPage(slug,true);
-    });
-
-    prevBtn.addEventListener("click",e => {
-
+    prevBtn.addEventListener("click", (e) => {
       if(prevBtn.classList.contains("disabled")){
         e.preventDefault();
         return;
       }
-
       e.preventDefault();
-
       if(currentPage > 1){
-        renderPage(currentPage - 1,true);
+        renderPage(currentPage - 1, true);
       }
     });
 
-    nextBtn.addEventListener("click",e => {
-
+    nextBtn.addEventListener("click", (e) => {
       e.preventDefault();
-
-      renderPage(currentPage + 1,true);
+      renderPage(currentPage + 1, true);
     });
 
-    backBtn.addEventListener("click",e => {
-
+    backBtn.addEventListener("click", (e) => {
       e.preventDefault();
-
-      renderPage(currentPage,false);
-
-      history.replaceState(
-        { page:currentPage },
-        "",
-        `?page=${currentPage}`
-      );
+      history.back();
     });
 
     window.onpopstate = () => {
-
       const params = new URLSearchParams(window.location.search);
-
-      const page = parseInt(
-        params.get("page") || "1",
-        10
-      );
-
+      const page = parseInt(params.get("page") || "1", 10);
       const slug = params.get("post");
 
-      currentPage = Number.isFinite(page) && page > 0
-        ? page
-        : 1;
-
+      currentPage = Number.isFinite(page) && page > 0 ? page : 1;
       pageNumEl.innerText = currentPage;
 
-      if(slug){
-
-        openPostBySlug(slug,currentPage,false);
-
-      }else{
-
-        loadPageFromAPI(currentPage,() => {
-
+      loadPageFromAPI(currentPage, async () => {
+        if(slug){
+          await openPost(slug, false);
+        }else{
           showHome();
-
           relatedPostsSection.style.display = "none";
           relatedPostsEl.innerHTML = "";
-
-        });
-
-      }
+        }
+      });
     };
 
     initFromURL();
