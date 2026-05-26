@@ -267,50 +267,23 @@ export async function onRequest(context) {
 
   </header>
 
-  <!-- REQUIRED ELEMENTS FOR script.js -->
-
-  <div id="pageBadge" style="display:none;"></div>
+  <!-- ONLY NECESSARY FOR SEARCH -->
 
   <div id="searchStatus" style="display:none;"></div>
 
 <div class="app">
-
-  <!-- REQUIRED POSTS CONTAINER -->
-
-  <div id="posts" class="grid" style="display:none;"></div>
-
-  <!-- REQUIRED PAGINATION -->
-
-  <div id="pagination" style="display:none;align-items:center;gap:12px;margin:24px 0;justify-content:center;">
-
-    <a id="prevBtn" class="nav-btn" href="?page=1">
-      Prev
-    </a>
-
-    <span id="pageNum">1</span>
-
-    <a id="nextBtn" class="nav-btn" href="?page=2">
-      Next
-    </a>
-
-  </div>
-
   <div id="detailView" style="display:block;max-width:1000px;margin:auto;">
-
-    <a id="backBtn" href="/" class="nav-btn" style="margin-bottom:20px;display:inline-flex;">
+    <a href="/" class="nav-btn" style="margin-bottom:20px;display:inline-flex;">
       ⬅ Back
     </a>
 
     <div id="detailContent">
-
       <h1 class="detail-title">${title}</h1>
 
       <div class="labels" style="margin-bottom:18px;display:flex;flex-wrap:wrap;gap:8px;">
-
         ${labels.map(label => `
           <span class="label">${label}</span>
         `).join("")}
-
       </div>
 
       ${image ? `
@@ -323,23 +296,16 @@ export async function onRequest(context) {
       <div class="detail-body">
         ${content}
       </div>
-
     </div>
 
     <div id="relatedPostsSection" style="margin-top:50px;">
-
-      <h2 style="margin-bottom:20px;font-size:28px;">
-        Related Posts
-      </h2>
+      <h2 style="margin-bottom:20px;font-size:28px;">Related Posts</h2>
 
       <div id="relatedPosts" class="grid">
         ${relatedPosts.map(post => createCard(post)).join("")}
       </div>
-
     </div>
-
   </div>
-
 </div>
 
 </body>
