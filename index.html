@@ -398,8 +398,12 @@ function createCard(post){
   `;
 }
 
+function isViewingPost(){
+  return detailView.style.display === "block";
+}
+
 function updatePageBadge(){
-  if(currentPage > 1){
+  if(currentPage > 1 && !isViewingPost()){
     pageBadge.style.display = "inline-flex";
     pageBadge.textContent = `Page ${currentPage}`;
   }else{
