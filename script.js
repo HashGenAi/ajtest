@@ -5,7 +5,7 @@
      SETTINGS
   ========================= */
 
-  const countdownPage = "/p/download.html";
+  const countdownPage = "/download";
 
   const fallbackPoster =
     "https://images.unsplash.com/photo-1507525428034-b723cf961d3e";
