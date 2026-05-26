@@ -1,7 +1,25 @@
 export async function onRequest(context) {
   const { params, request } = context;
 
-  const slug = params.slug;
+  const slug = params.slug || "";
+
+  // Allow static files to pass through normally
+  if (
+    slug.endsWith(".css") ||
+    slug.endsWith(".js") ||
+    slug.endsWith(".png") ||
+    slug.endsWith(".jpg") ||
+    slug.endsWith(".jpeg") ||
+    slug.endsWith(".gif") ||
+    slug.endsWith(".svg") ||
+    slug.endsWith(".webp") ||
+    slug.endsWith(".ico") ||
+    slug.endsWith(".json") ||
+    slug.endsWith(".txt") ||
+    slug.endsWith(".xml")
+  ) {
+    return context.next();
+  }
 
   function slugify(text) {
     return text
