@@ -1,245 +1,225 @@
 
 (() => {
+  /* =========================
+     SETTINGS
+  ========================= */
+  const countdownPage = "/p/download.html";
+  const fallbackPoster =
+    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e";
 
   /* =========================
      DOMAIN CACHE
   ========================= */
   const domainMap = {};
 
-  document.querySelectorAll('meta[name="video-domain"]').forEach(meta => {
-    const id = meta.dataset.id;
-    domainMap[id] = meta.content;
-  });
+  function readDomains() {
+    document.querySelectorAll('meta[name="video-domain"]').forEach(meta => {
+      const id = meta.dataset.id;
+      if (id) domainMap[id] = meta.content || "";
+    });
+  }
 
   /* =========================
-     SET POSTER
+     POSTER SETTER
   ========================= */
-  function setPoster() {
-
+  function setPoster(root = document) {
     const meta = document.querySelector('meta[property="og:image"]');
+    const poster = meta && meta.content ? meta.content : fallbackPoster;
 
-    const fallback =
-      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e";
-
-    const poster =
-      meta && meta.content
-        ? meta.content
-        : fallback;
-
-    document.querySelectorAll(".video-poster").forEach(el => {
+    root.querySelectorAll?.(".video-poster").forEach(el => {
       el.style.backgroundImage = `url('${poster}')`;
     });
   }
 
   /* =========================
-     PLAY VIDEO
+     VIDEO PLAY
   ========================= */
   window.playVideo = function (el) {
-
-    const wrapper = el.parentElement;
-
+    const wrapper = el.closest(".video-wrapper") || el.parentElement;
     if (!wrapper) return;
 
     const iframe = wrapper.querySelector(".video-player");
     const poster = wrapper.querySelector(".video-poster");
-
     if (!iframe) return;
 
-    // hide play button + poster
     el.style.display = "none";
+    if (poster) poster.style.display = "none";
 
-    if (poster) {
-      poster.style.display = "none";
-    }
-
-    // get domain
-    const domainId = wrapper.dataset.domainId;
+    const domainId = wrapper.dataset.domainId || "";
     const domain = domainMap[domainId] || "";
+    const path = iframe.dataset.src || "";
 
-    // load iframe only once
     if (!iframe.src) {
-
-      const path = iframe.dataset.src || "";
-
-      iframe.src = domain + path;
+      iframe.src = path.startsWith("http") ? path : (domain + path);
     }
   };
 
   /* =========================
-     IMAGE POPUP VIEWER
+     DOWNLOAD REDIRECT
   ========================= */
+  function handleDownloadButton(btn) {
+    const raw = btn.dataset.url || "";
+    if (!raw) return;
 
-  const popup = document.getElementById("tmdbPopup");
-  const popupImg = document.getElementById("tmdbPopupImg");
+    const [path = "", domainKey = ""] = raw.split("|");
+    const domain = domainMap[domainKey] || "";
 
-  if (popup && popupImg) {
+    const finalTarget = path.startsWith("http") ? path : (domain + path);
 
-    const images = document.querySelectorAll(".tmdb-extra-images img");
+    const url =
+      `${countdownPage}?target=${encodeURIComponent(finalTarget)}&d=${encodeURIComponent(domainKey)}`;
 
-    let currentIndex = 0;
-
-    function updateImage() {
-      popupImg.src = images[currentIndex].src;
-    }
-
-    function openImage(index) {
-
-      currentIndex = index;
-
-      updateImage();
-
-      popup.classList.add("active");
-
-      history.pushState(
-        { popupOpen: true },
-        "",
-        window.location.href
-      );
-    }
-
-    function closePopup() {
-      popup.classList.remove("active");
-    }
-
-    function nextImage() {
-
-      currentIndex =
-        (currentIndex + 1) % images.length;
-
-      updateImage();
-    }
-
-    function prevImage() {
-
-      currentIndex =
-        (currentIndex - 1 + images.length) % images.length;
-
-      updateImage();
-    }
-
-    // thumbnail click
-    images.forEach((img, index) => {
-      img.addEventListener("click", () => {
-        openImage(index);
-      });
-    });
-
-    // next button
-    document.querySelector(".tmdb-next")?.addEventListener(
-      "click",
-      nextImage
-    );
-
-    // prev button
-    document.querySelector(".tmdb-prev")?.addEventListener(
-      "click",
-      prevImage
-    );
-
-    // close button
-    document.querySelector(".tmdb-close")?.addEventListener(
-      "click",
-      () => {
-        closePopup();
-        history.back();
-      }
-    );
-
-    // outside click
-    popup.addEventListener("click", e => {
-
-      if (e.target === popup) {
-        closePopup();
-        history.back();
-      }
-    });
-
-    // keyboard support
-    document.addEventListener("keydown", e => {
-
-      if (!popup.classList.contains("active")) return;
-
-      switch (e.key) {
-
-        case "ArrowRight":
-          nextImage();
-          break;
-
-        case "ArrowLeft":
-          prevImage();
-          break;
-
-        case "Escape":
-          closePopup();
-          history.back();
-          break;
-      }
-    });
-
-    // back button support
-    window.addEventListener("popstate", () => {
-
-      if (popup.classList.contains("active")) {
-        closePopup();
-      }
-    });
-
-    /* =========================
-       MOBILE SWIPE
-    ========================= */
-
-    let touchStartX = 0;
-    let touchEndX = 0;
-
-    popupImg.addEventListener("touchstart", e => {
-      touchStartX = e.changedTouches[0].screenX;
-    });
-
-    popupImg.addEventListener("touchend", e => {
-
-      touchEndX = e.changedTouches[0].screenX;
-
-      if (touchStartX - touchEndX > 50) {
-        nextImage();
-      }
-
-      if (touchEndX - touchStartX > 50) {
-        prevImage();
-      }
-    });
+    window.location.href = url;
   }
 
   /* =========================
-     DOWNLOAD REDIRECT
+     IMAGE POPUP VIEWER
   ========================= */
+  let popup = null;
+  let popupImg = null;
+  let currentImages = [];
+  let currentIndex = 0;
 
-  const countdownPage = "/p/download.html";
+  function loadPopupElements() {
+    popup = document.getElementById("tmdbPopup");
+    popupImg = document.getElementById("tmdbPopupImg");
+  }
 
-  document.querySelectorAll(".button-link").forEach(btn => {
+  function updateImage() {
+    if (!popupImg || !currentImages.length) return;
+    popupImg.src = currentImages[currentIndex].src;
+  }
 
-    btn.addEventListener("click", function (e) {
+  function openImage(index) {
+    loadPopupElements();
+    if (!popup || !popupImg || !currentImages.length) return;
 
+    currentIndex = index;
+    updateImage();
+    popup.classList.add("active");
+
+    history.pushState({ popupOpen: true }, "", window.location.href);
+  }
+
+  function closePopup() {
+    if (!popup) loadPopupElements();
+    if (popup) popup.classList.remove("active");
+  }
+
+  function nextImage() {
+    if (!currentImages.length) return;
+    currentIndex = (currentIndex + 1) % currentImages.length;
+    updateImage();
+  }
+
+  function prevImage() {
+    if (!currentImages.length) return;
+    currentIndex = (currentIndex - 1 + currentImages.length) % currentImages.length;
+    updateImage();
+  }
+
+  function refreshPopupImages() {
+    currentImages = Array.from(document.querySelectorAll(".tmdb-extra-images img"));
+  }
+
+  /* =========================
+     EVENT DELEGATION
+  ========================= */
+  document.addEventListener("click", e => {
+    const downloadBtn = e.target.closest(".button-link");
+    if (downloadBtn) {
       e.preventDefault();
+      handleDownloadButton(downloadBtn);
+      return;
+    }
 
-      const raw = this.dataset.url;
+    const overlay = e.target.closest(".video-overlay");
+    if (overlay) {
+      e.preventDefault();
+      window.playVideo(overlay);
+      return;
+    }
 
-      if (!raw) return;
+    const thumb = e.target.closest(".tmdb-extra-images img");
+    if (thumb) {
+      refreshPopupImages();
+      const idx = currentImages.indexOf(thumb);
+      if (idx !== -1) openImage(idx);
+      return;
+    }
 
-      const [path, domainKey] = raw.split("|");
+    if (e.target.classList.contains("tmdb-close") || e.target.closest(".tmdb-close")) {
+      e.preventDefault();
+      closePopup();
+      history.back();
+      return;
+    }
 
-      const url =
-        `${countdownPage}?target=${encodeURIComponent(path)}&d=${encodeURIComponent(domainKey)}`;
+    if (e.target.classList.contains("tmdb-next") || e.target.closest(".tmdb-next")) {
+      e.preventDefault();
+      nextImage();
+      return;
+    }
 
-      window.location.href = url;
-    });
+    if (e.target.classList.contains("tmdb-prev") || e.target.closest(".tmdb-prev")) {
+      e.preventDefault();
+      prevImage();
+      return;
+    }
+
+    if (popup && e.target === popup) {
+      closePopup();
+      history.back();
+    }
+  });
+
+  document.addEventListener("keydown", e => {
+    if (!popup || !popup.classList.contains("active")) return;
+
+    switch (e.key) {
+      case "ArrowRight":
+        nextImage();
+        break;
+      case "ArrowLeft":
+        prevImage();
+        break;
+      case "Escape":
+        closePopup();
+        history.back();
+        break;
+    }
+  });
+
+  window.addEventListener("popstate", () => {
+    if (popup && popup.classList.contains("active")) {
+      closePopup();
+    }
+  });
+
+  /* =========================
+     AUTO-POSTER FOR DYNAMIC HTML
+  ========================= */
+  const observer = new MutationObserver(() => {
+    setPoster();
+  });
+
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true
   });
 
   /* =========================
      INIT
   ========================= */
-
-  document.addEventListener("DOMContentLoaded", () => {
+  function init() {
+    readDomains();
+    loadPopupElements();
     setPoster();
-  });
+  }
 
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
 })();
