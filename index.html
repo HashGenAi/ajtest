@@ -1,14 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Premium Movie Blog</title>
-
-  <meta content="no-referrer" name="referrer" />
-  <meta content="https://hashgen.website" data-id="d1" name="video-domain" />
-
-  <style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Premium Movie Blog</title>  <link rel="preload" as="fetch" href="json/posts1.json" type="application/json">
+  <script src="script.js" defer></script>  <meta content="no-referrer" name="referrer"/>
+  <meta content="https://hashgen.website" data-id="d1" name="video-domain"/>  <style>
     *{
       margin:0;
       padding:0;
@@ -77,7 +73,7 @@
       min-width:0;
     }
 
-    .brand-name{
+    .brand-text h1{
       font-size:18px;
       line-height:1.2;
       margin:0;
@@ -213,6 +209,10 @@
     .menu-lines span:nth-child(2){ top:6px; }
     .menu-lines span:nth-child(3){ bottom:0; }
 
+    .search-btn svg{
+      display:block;
+    }
+
     @media (max-width: 860px){
       .topbar{
         flex-wrap:wrap;
@@ -245,7 +245,7 @@
         gap:10px;
       }
 
-      .brand-name{
+      .brand-text h1{
         font-size:16px;
       }
 
@@ -428,6 +428,29 @@
       padding:16px;
     }
 
+    .hero{
+      max-width:1400px;
+      margin:0 auto 18px;
+      padding:18px;
+      border-radius:24px;
+      background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.06);
+      box-shadow:0 10px 30px rgba(0,0,0,.18);
+    }
+
+    .hero h2{
+      font-size:30px;
+      line-height:1.25;
+      margin-bottom:8px;
+    }
+
+    .hero p{
+      color:#b8b8b8;
+      font-size:14px;
+      line-height:1.7;
+      max-width:760px;
+    }
+
     #pageBadge{
       position:sticky;
       top:78px;
@@ -486,6 +509,10 @@
         gap:10px;
       }
 
+      .hero h2{
+        font-size:24px;
+      }
+
       .page-title{
         font-size:28px;
       }
@@ -495,6 +522,15 @@
       .grid{
         grid-template-columns:repeat(2,1fr);
         gap:10px;
+      }
+
+      .hero{
+        padding:14px;
+        border-radius:18px;
+      }
+
+      .hero p{
+        font-size:13px;
       }
     }
 
@@ -583,8 +619,10 @@
       font-size:14px;
       font-weight:800;
       line-height:1.45;
+      overflow:visible;
       white-space:normal;
       word-break:break-word;
+      transition:.3s ease;
       text-shadow:0 2px 10px rgba(0,0,0,.35);
       margin-bottom:10px;
     }
@@ -595,6 +633,10 @@
     .card:nth-child(6n+4) .title{ color:#72f1b8; }
     .card:nth-child(6n+5) .title{ color:#ffe06b; }
     .card:nth-child(6n+6) .title{ color:#ff9e9e; }
+
+    .card:hover .title{
+      transform:translateX(5px);
+    }
 
     .labels{
       display:flex;
@@ -617,36 +659,12 @@
       font-weight:600;
       padding:5px 9px;
       border-radius:40px;
+      transition:.3s ease;
       white-space:nowrap;
     }
 
-    .loading{
-      grid-column:1/-1;
-      text-align:center;
-      padding:80px 20px;
-      font-size:18px;
-      color:#ddd;
-    }
-
-    .search-status{
-      max-width:1400px;
-      margin:0 auto 14px;
-      color:#cfcfcf;
-      font-size:14px;
-      display:none;
-    }
-
-    ::-webkit-scrollbar{
-      width:8px;
-    }
-
-    ::-webkit-scrollbar-track{
-      background:#111;
-    }
-
-    ::-webkit-scrollbar-thumb{
-      background:#333;
-      border-radius:30px;
+    .label:hover{
+      background:rgba(255,255,255,.16);
     }
 
     .pagination{
@@ -696,6 +714,100 @@
       font-size:16px;
       font-weight:700;
       color:#ddd;
+    }
+
+    #detailView{
+      display:none;
+      max-width:1000px;
+      margin:0 auto;
+      background:linear-gradient(180deg,#1c1c1c,#131313);
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:24px;
+      padding:22px;
+      box-shadow:0 15px 40px rgba(0,0,0,.45);
+      overflow-anchor:none;
+    }
+
+    .detail-title{
+      margin-bottom:20px;
+      font-size:32px;
+      line-height:1.5;
+    }
+
+    .detail-body{
+      line-height:1.8;
+      color:#eaeaea;
+    }
+
+    .detail-body img{
+      max-width:100%;
+      height:auto;
+      border-radius:14px;
+    }
+
+    .detail-body iframe,
+    .detail-body video{
+      max-width:100%;
+    }
+
+    #relatedPostsSection{
+      margin-top:40px;
+      min-height:520px;
+      overflow-anchor:none;
+    }
+
+    #relatedPostsSection h2{
+      margin-bottom:20px;
+      font-size:28px;
+      font-weight:800;
+      color:#fff;
+    }
+
+    #relatedPosts{
+      align-items:start;
+    }
+
+    #relatedPosts .card:hover{
+      transform:none;
+      box-shadow:0 8px 25px rgba(0,0,0,.35);
+    }
+
+    #relatedPosts .card:hover .poster{
+      transform:none;
+      filter:brightness(1.02);
+    }
+
+    #relatedPosts .card:hover .title{
+      transform:none;
+    }
+
+    .loading{
+      grid-column:1/-1;
+      text-align:center;
+      padding:80px 20px;
+      font-size:18px;
+      color:#ddd;
+    }
+
+    .search-status{
+      max-width:1400px;
+      margin:0 auto 14px;
+      color:#cfcfcf;
+      font-size:14px;
+      display:none;
+    }
+
+    ::-webkit-scrollbar{
+      width:8px;
+    }
+
+    ::-webkit-scrollbar-track{
+      background:#111;
+    }
+
+    ::-webkit-scrollbar-thumb{
+      background:#333;
+      border-radius:30px;
     }
 
     .video-container {
@@ -849,8 +961,6 @@
       cursor: pointer;
       z-index: 10;
       font-weight: bold;
-      background: transparent;
-      border: none;
     }
 
     .tmdb-nav{
@@ -941,14 +1051,7 @@
       background-color: #e50914;
       transform: scale(1);
     }
-  </style>
-</head>
-
-<body>
-
-  <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-  <aside class="sidebar" id="sidebar">
+  </style></head><body>  <div class="sidebar-overlay" id="sidebarOverlay"></div>  <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <div class="sidebar-profile">
         <div class="sidebar-avatar">M</div>
@@ -958,97 +1061,111 @@
         </div>
       </div>
       <button class="sidebar-close" id="sidebarClose" aria-label="Close menu">×</button>
-    </div>
-
-    <div class="sidebar-content">
-      <div class="sidebar-section">
-        <div class="sidebar-section-title">Navigation</div>
-        <a class="sidebar-link" href="#top">
-          <span class="icon">⌂</span>
-          <span>Home</span>
-        </a>
-        <a class="sidebar-link" href="#latestSection">
-          <span class="icon">★</span>
-          <span>Latest Movies</span>
-        </a>
-      </div>
-
-      <div class="sidebar-section">
-        <div class="sidebar-section-title">About</div>
-        <p class="sidebar-note">
-          Browse the newest movie posts, search instantly, and move through pages with a polished layout.
-        </p>
-      </div>
-    </div>
-  </aside>
-
-  <header class="topbar" id="top">
-    <a class="brand" href="index.html?page=1" aria-label="Home">
-      <div class="brand-logo">M</div>
-      <div class="brand-text">
-        <h1 class="brand-name">Premium Movie Blog</h1>
-        <p>Latest movies, clean layout, quick browsing</p>
-      </div>
+    </div><div class="sidebar-content">
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Navigation</div>
+    <a class="sidebar-link" href="#top">
+      <span class="icon">⌂</span>
+      <span>Home</span>
     </a>
-
-    <div class="topbar-center">
-      <div class="search-wrap">
-        <svg class="search-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M21 21l-4.35-4.35" stroke="white" stroke-width="2" stroke-linecap="round"/>
-          <circle cx="11" cy="11" r="7" stroke="white" stroke-width="2"/>
-        </svg>
-        <input id="searchInput" class="search-input" type="search" placeholder="Search movies, labels, titles...">
-        <button id="searchClear" class="search-clear" aria-label="Clear search">×</button>
-      </div>
-    </div>
-
-    <div class="topbar-actions">
-      <button class="menu-btn search-btn" id="searchBtn" aria-label="Focus search">
-        <svg viewBox="0 0 24 24" fill="none" width="20" height="20" aria-hidden="true">
-          <path d="M21 21l-4.35-4.35" stroke="white" stroke-width="2" stroke-linecap="round"/>
-          <circle cx="11" cy="11" r="7" stroke="white" stroke-width="2"/>
-        </svg>
-      </button>
-
-      <button class="menu-btn" id="menuBtn" aria-label="Open menu">
-        <div class="menu-lines" aria-hidden="true">
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
-      </button>
-    </div>
-  </header>
-
-  <div class="app">
-    <div id="pageBadge"></div>
-    <div id="searchStatus" class="search-status"></div>
-
-    <div class="page-title">Latest Movies</div>
-
-    <div id="latestSection"></div>
-    <div id="posts" class="grid"></div>
-
-    <div class="pagination" id="pagination">
-      <a id="prevBtn" class="nav-btn" href="index.html?page=1">Prev</a>
-      <span id="pageNum">1</span>
-      <a id="nextBtn" class="nav-btn" href="index.html?page=2">Next</a>
-    </div>
+    <a class="sidebar-link" href="#latestSection">
+      <span class="icon">★</span>
+      <span>Latest Movies</span>
+    </a>
+    <a class="sidebar-link" href="#relatedPostsSection">
+      <span class="icon">☰</span>
+      <span>Related Posts</span>
+    </a>
   </div>
 
-  <script>
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">About</div>
+    <p class="sidebar-note">
+      Browse the newest movie posts, search instantly, open details, and move through pages with a polished layout.
+    </p>
+  </div>
+</div>
+
+  </aside>  <header class="topbar" id="top">
+    <a class="brand" href="?page=1" aria-label="Home">
+      <div class="brand-logo">M</div>
+      <div class="brand-text">
+        <h1>Premium Movie Blog</h1>
+        <p>Latest movies, clean layout, quick browsing</p>
+      </div>
+    </a><div class="topbar-center">
+  <div class="search-wrap">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M21 21l-4.35-4.35" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="11" cy="11" r="7" stroke="white" stroke-width="2"/>
+    </svg>
+    <input id="searchInput" class="search-input" type="search" placeholder="Search movies, labels, titles...">
+    <button id="searchClear" class="search-clear" aria-label="Clear search">×</button>
+  </div>
+</div>
+
+<div class="topbar-actions">
+  <button class="menu-btn search-btn" id="searchBtn" aria-label="Focus search">
+    <svg viewBox="0 0 24 24" fill="none" width="20" height="20" aria-hidden="true">
+      <path d="M21 21l-4.35-4.35" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="11" cy="11" r="7" stroke="white" stroke-width="2"/>
+    </svg>
+  </button>
+
+  <button class="menu-btn" id="menuBtn" aria-label="Open menu">
+    <div class="menu-lines" aria-hidden="true">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  </button>
+</div>
+
+  </header>  <div class="app">
+    <div id="pageBadge" class="page-badge"></div><div id="searchStatus" class="search-status"></div>
+
+<div class="page-title">Latest Movies</div>
+
+<div id="latestSection"></div>
+<div id="posts" class="grid"></div>
+
+<div class="pagination" id="pagination">
+  <a id="prevBtn" class="nav-btn" href="?page=1">Prev</a>
+  <span id="pageNum">1</span>
+  <a id="nextBtn" class="nav-btn" href="?page=2">Next</a>
+</div>
+
+<div id="detailView">
+  <a id="backBtn" class="nav-btn" style="margin-bottom:20px; display:inline-flex;" href="?page=1">⬅ Back</a>
+  <div id="detailContent"></div>
+
+  <div id="relatedPostsSection" style="display:none;">
+    <h2>Related Posts</h2>
+    <div id="relatedPosts" class="grid"></div>
+  </div>
+</div>
+
+  </div>  <script>
     const POSTS_PER_PAGE = 24;
     const MAX_JSON_FILES = 500;
 
     const postsEl = document.getElementById("posts");
+    const detailView = document.getElementById("detailView");
+    const detailContent = document.getElementById("detailContent");
     const pagination = document.getElementById("pagination");
     const pageNumEl = document.getElementById("pageNum");
     const prevBtn = document.getElementById("prevBtn");
     const nextBtn = document.getElementById("nextBtn");
+    const backBtn = document.getElementById("backBtn");
+    const relatedPostsSection = document.getElementById("relatedPostsSection");
+    const relatedPostsEl = document.getElementById("relatedPosts");
     const pageBadge = document.getElementById("pageBadge");
     const searchInput = document.getElementById("searchInput");
     const searchClear = document.getElementById("searchClear");
     const searchStatus = document.getElementById("searchStatus");
+    const pageTitleEl = document.querySelector(".page-title");
+    const brandTitle = document.querySelector(".brand-text h1");
+
     const searchBtn = document.getElementById("searchBtn");
     const menuBtn = document.getElementById("menuBtn");
     const sidebar = document.getElementById("sidebar");
@@ -1065,7 +1182,25 @@
     let searchTimer = null;
 
     function scrollToTopNow(){
-      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: "auto"
+      });
+    }
+
+    function setPageTitleVisible(visible){
+      if(pageTitleEl){
+        pageTitleEl.style.display = visible ? "block" : "none";
+      }
+    }
+
+    function setBrandTitleVisible(visible){
+      if(brandTitle){
+        brandTitle.style.display = visible ? "block" : "none";
+      }
     }
 
     function openSidebar(){
@@ -1125,10 +1260,9 @@
       const title = post.title?.$t || "No Title";
       const labels = getLabels(post);
       const slug = slugify(title);
-      const href = `post.html?post=${encodeURIComponent(slug)}`;
 
       return `
-        <a class="card" href="${href}" data-slug="${slug}">
+        <a class="card" href="/${slug}" data-slug="${slug}">
           <div class="poster-wrap">
             <img class="poster" src="${image}" loading="lazy" alt="${title}">
           </div>
@@ -1142,6 +1276,26 @@
           </div>
         </a>
       `;
+    }
+
+    function isViewingPost(){
+      return detailView.style.display === "block";
+    }
+
+    function updatePageBadge(){
+      if(currentSearch){
+        pageBadge.style.display = "inline-flex";
+        pageBadge.textContent = `Search: ${currentSearch}`;
+        return;
+      }
+
+      if(currentPage > 1 && !isViewingPost()){
+        pageBadge.style.display = "inline-flex";
+        pageBadge.textContent = `Page ${currentPage}`;
+      }else{
+        pageBadge.style.display = "none";
+        pageBadge.textContent = "";
+      }
     }
 
     function updateNavState(){
@@ -1164,13 +1318,32 @@
       }
     }
 
+    function showHome(){
+      setPageTitleVisible(!currentSearch);
+      setBrandTitleVisible(true);
+      postsEl.style.display = "grid";
+      pagination.style.display = currentSearch ? "none" : "flex";
+      detailView.style.display = "none";
+      updatePageBadge();
+    }
+
+    function showDetail(){
+      setPageTitleVisible(false);
+      setBrandTitleVisible(false);
+      postsEl.style.display = "none";
+      pagination.style.display = "none";
+      detailView.style.display = "block";
+      updatePageBadge();
+    }
+
     async function loadJsonFile(index){
-      if(index > MAX_JSON_FILES){
+      if(index > MAX_JSON_FILES) {
         noMoreFiles = true;
         return false;
       }
 
       if(loadedFileIndexes.has(index)) return true;
+
       if(loadingFilePromises.has(index)) return loadingFilePromises.get(index);
 
       const promise = (async () => {
@@ -1233,6 +1406,176 @@
       }
     }
 
+    async function findPostBySlug(slug){
+      while(!noMoreFiles){
+        const found = ALL_POSTS.find(p => slugify(p.title?.$t || "") === slug);
+        if(found){
+          const index = ALL_POSTS.findIndex(p => slugify(p.title?.$t || "") === slug);
+          const page = Math.floor(index / POSTS_PER_PAGE) + 1;
+          return { post: found, page };
+        }
+
+        const ok = await loadNextJsonFile();
+        if(!ok) break;
+      }
+
+      const finalFound = ALL_POSTS.find(p => slugify(p.title?.$t || "") === slug);
+      if(finalFound){
+        const index = ALL_POSTS.findIndex(p => slugify(p.title?.$t || "") === slug);
+        const page = Math.floor(index / POSTS_PER_PAGE) + 1;
+        return { post: finalFound, page };
+      }
+
+      return null;
+    }
+
+    function renderDetailHeader(post){
+      const title = post.title?.$t || "No Title";
+      const labels = getLabels(post);
+
+      return `
+        <h1 class="detail-title">${title}</h1>
+
+        <div class="labels" style="margin-bottom:18px;">
+          ${labels.slice(0, 8).map(label => `<span class="label">${label}</span>`).join("")}
+        </div>
+      `;
+    }
+
+    async function loadRelatedPosts(currentSlug){
+      try{
+        await ensureAllPostsLoaded();
+
+        relatedPostsSection.style.display = "block";
+        relatedPostsEl.innerHTML = `<div class="loading">Loading related posts...</div>`;
+
+        const relatedPosts = ALL_POSTS
+          .filter(post => slugify(post.title?.$t || "") !== currentSlug)
+          .slice(0, 24);
+
+        if(!relatedPosts.length){
+          relatedPostsSection.style.display = "none";
+          relatedPostsEl.innerHTML = "";
+          return;
+        }
+
+        relatedPostsEl.innerHTML = relatedPosts.map(post => createCard(post)).join("");
+      }catch(e){
+        relatedPostsSection.style.display = "block";
+        relatedPostsEl.innerHTML = `<div class="loading">Failed to load related posts</div>`;
+      }
+    }
+
+    async function openPost(slug, addHistory = true){
+      scrollToTopNow();
+      closeSidebar();
+      currentSearch = "";
+      searchInput.value = "";
+      searchClear.classList.remove("show");
+      searchStatus.style.display = "none";
+      showDetail();
+
+      detailContent.innerHTML = `<div class="loading">Loading post...</div>`;
+      relatedPostsSection.style.display = "none";
+      relatedPostsEl.innerHTML = "";
+
+      const result = await findPostBySlug(slug);
+
+      if(!result){
+        detailContent.innerHTML = "<h2>Post not found</h2>";
+        backBtn.href = `?page=${currentPage}`;
+        updateNavState();
+        updatePageBadge();
+        scrollToTopNow();
+        return;
+      }
+
+      const post = result.post;
+      const foundPage = result.page || 1;
+      const title = post.title?.$t || "No Title";
+      document.title = title;
+
+      currentPage = foundPage;
+      pageNumEl.innerText = currentPage;
+
+      const content = post.content?.$t || "";
+
+      detailContent.innerHTML = `
+        ${renderDetailHeader(post)}
+        <div class="detail-body">${content}</div>
+      `;
+
+      const prevPage = currentPage > 1 ? currentPage - 1 : 1;
+      const nextPage = currentPage + 1;
+
+      prevBtn.href = `?page=${prevPage}`;
+      nextBtn.href = `?page=${nextPage}`;
+      backBtn.href = `?page=${foundPage}`;
+
+      if(addHistory){
+        history.pushState(
+          { page: foundPage, post: slug },
+          "",
+          `?post=${encodeURIComponent(slug)}`
+        );
+      }
+
+      await loadRelatedPosts(slug);
+
+      updateNavState();
+      updatePageBadge();
+      scrollToTopNow();
+    }
+
+    async function renderPage(page, addHistory = true){
+      scrollToTopNow();
+      closeSidebar();
+      currentSearch = "";
+      searchStatus.style.display = "none";
+      searchInput.value = "";
+      searchClear.classList.remove("show");
+
+      setPageTitleVisible(true);
+      setBrandTitleVisible(true);
+      postsEl.innerHTML = `<div class="loading">Loading Premium Movies...</div>`;
+
+      await ensurePostsForPage(page);
+
+      const totalLoadedPages = Math.max(
+        1,
+        Math.ceil(ALL_POSTS.length / POSTS_PER_PAGE)
+      );
+
+      currentPage = Math.min(Math.max(1, page), totalLoadedPages);
+
+      const start = (currentPage - 1) * POSTS_PER_PAGE;
+      const end = start + POSTS_PER_PAGE;
+      const pagePosts = ALL_POSTS.slice(start, end);
+
+      postsEl.innerHTML = pagePosts.map(post => createCard(post)).join("");
+      pageNumEl.innerText = currentPage;
+
+      const prevPage = currentPage > 1 ? currentPage - 1 : 1;
+      const nextPage = currentPage + 1;
+
+      prevBtn.href = `?page=${prevPage}`;
+      nextBtn.href = `?page=${nextPage}`;
+      backBtn.href = `?page=${currentPage}`;
+
+      relatedPostsSection.style.display = "none";
+      relatedPostsEl.innerHTML = "";
+      detailView.style.display = "none";
+      pagination.style.display = "flex";
+
+      if(addHistory){
+        history.pushState({ page: currentPage }, "", `?page=${currentPage}`);
+      }
+
+      updateNavState();
+      updatePageBadge();
+      scrollToTopNow();
+    }
+
     function matchesSearch(post, query){
       const title = (post.title?.$t || "").toLowerCase();
       const labels = getLabels(post).join(" ").toLowerCase();
@@ -1240,48 +1583,28 @@
       return title.includes(query) || labels.includes(query) || content.includes(query);
     }
 
-    async function renderPage(page){
-      scrollToTopNow();
-      currentSearch = "";
-      searchStatus.style.display = "none";
-      postsEl.innerHTML = `<div class="loading">Loading Premium Movies...</div>`;
-
-      await ensurePostsForPage(page);
-
-      const totalLoadedPages = Math.max(1, Math.ceil(ALL_POSTS.length / POSTS_PER_PAGE));
-      currentPage = Math.min(Math.max(1, page), totalLoadedPages);
-
-      const start = (currentPage - 1) * POSTS_PER_PAGE;
-      const end = start + POSTS_PER_PAGE;
-      const pagePosts = ALL_POSTS.slice(start, end);
-
-      postsEl.innerHTML = pagePosts.map(createCard).join("");
-      pageNumEl.innerText = currentPage;
-
-      const prevPage = currentPage > 1 ? currentPage - 1 : 1;
-      const nextPage = currentPage + 1;
-      prevBtn.href = `index.html?page=${prevPage}`;
-      nextBtn.href = `index.html?page=${nextPage}`;
-
-      updateNavState();
-      scrollToTopNow();
-    }
-
-    async function renderSearchResults(query){
+    async function renderSearchResults(query, addHistory = true){
       const q = query.trim().toLowerCase();
 
       if(!q){
-        currentSearch = "";
         searchStatus.style.display = "none";
-        pagination.style.display = "flex";
-        await renderPage(currentPage);
+        currentSearch = "";
+        if(addHistory){
+          history.pushState({ page: currentPage }, "", `?page=${currentPage}`);
+        }
+        await renderPage(currentPage, false);
         return;
       }
 
       scrollToTopNow();
+      closeSidebar();
+      showHome();
+      setPageTitleVisible(false);
+
       currentSearch = query.trim();
       searchStatus.style.display = "block";
       searchStatus.textContent = `Searching for “${currentSearch}”…`;
+
       postsEl.innerHTML = `<div class="loading">Searching all posts...</div>`;
       pagination.style.display = "none";
 
@@ -1290,7 +1613,7 @@
       const results = ALL_POSTS.filter(post => matchesSearch(post, q));
 
       if(results.length){
-        postsEl.innerHTML = results.map(createCard).join("");
+        postsEl.innerHTML = results.map(post => createCard(post)).join("");
         searchStatus.textContent = `Showing ${results.length} result${results.length === 1 ? "" : "s"} for “${currentSearch}”`;
       }else{
         postsEl.innerHTML = `<div class="loading">No results found for “${currentSearch}”</div>`;
@@ -1302,7 +1625,14 @@
       nextBtn.classList.add("disabled");
       prevBtn.setAttribute("aria-disabled", "true");
       nextBtn.setAttribute("aria-disabled", "true");
-      pagination.style.display = "flex";
+      pageBadge.style.display = "inline-flex";
+      pageBadge.textContent = `Search: ${currentSearch}`;
+
+      if(addHistory){
+        history.pushState({ search: currentSearch }, "", `?search=${encodeURIComponent(currentSearch)}`);
+      }
+
+      scrollToTopNow();
     }
 
     function handleSearchInput(){
@@ -1317,7 +1647,7 @@
 
       clearTimeout(searchTimer);
       searchTimer = setTimeout(() => {
-        renderSearchResults(value);
+        renderSearchResults(value, true);
       }, 300);
     }
 
@@ -1327,6 +1657,7 @@
 
       const params = new URLSearchParams(window.location.search);
       const page = parseInt(params.get("page") || "1", 10);
+      const slug = params.get("post");
       const search = params.get("search") || "";
 
       currentPage = Number.isFinite(page) && page > 0 ? page : 1;
@@ -1336,11 +1667,14 @@
         searchInput.value = search;
         searchClear.classList.add("show");
         searchBtn.classList.add("active");
-        await ensureAllPostsLoaded();
-        await renderSearchResults(search);
+        await renderSearchResults(search, false);
+      }else if(slug){
+        await openPost(slug, false);
       }else{
-        await renderPage(currentPage);
+        await renderPage(currentPage, false);
       }
+
+      scrollToTopNow();
     }
 
     prevBtn.addEventListener("click", (e) => {
@@ -1348,7 +1682,7 @@
       closeSidebar();
       if(prevBtn.classList.contains("disabled")) return;
       if(currentPage > 1 && !currentSearch){
-        renderPage(currentPage - 1);
+        renderPage(currentPage - 1, true);
       }
     });
 
@@ -1357,8 +1691,14 @@
       closeSidebar();
       if(nextBtn.classList.contains("disabled")) return;
       if(!currentSearch){
-        renderPage(currentPage + 1);
+        renderPage(currentPage + 1, true);
       }
+    });
+
+    backBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      closeSidebar();
+      history.back();
     });
 
     searchBtn.addEventListener("click", () => {
@@ -1391,7 +1731,7 @@
       if(e.key === "Enter"){
         e.preventDefault();
         clearTimeout(searchTimer);
-        renderSearchResults(searchInput.value);
+        renderSearchResults(searchInput.value, true);
       }
     });
 
@@ -1401,8 +1741,7 @@
       searchBtn.classList.remove("active");
       currentSearch = "";
       searchStatus.style.display = "none";
-      pagination.style.display = "flex";
-      renderPage(currentPage);
+      renderPage(currentPage, true);
       searchInput.focus();
     });
 
@@ -1411,6 +1750,5 @@
     });
 
     initFromURL();
-  </script>
-</body>
+  </script></body>
 </html>
