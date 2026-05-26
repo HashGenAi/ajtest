@@ -121,23 +121,151 @@ export async function onRequest(context) {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+
 <title>${title}</title>
-<link rel="stylesheet" href="/style.css">
-<script src="/script.js" defer></script>
+
 <meta content="no-referrer" name="referrer"/>
+<meta content="https://hashgen.website" data-id="d1" name="video-domain"/>
+
+<link rel="stylesheet" href="/style.css">
+<link rel="preload" as="fetch" href="/json/posts1.json" type="application/json">
+<script src="/script.js" defer></script>
 </head>
 
 <body>
 
-<header class="topbar">
-  <a class="brand" href="/">
-    <div class="brand-logo">M</div>
-    <div class="brand-text">
-      <h1>Premium Movie Blog</h1>
-      <p>Latest movies, clean layout, quick browsing</p>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-profile">
+        <div class="sidebar-avatar">M</div>
+
+        <div>
+          <h2>Premium Movies</h2>
+          <p>Fast, clean, modern</p>
+        </div>
+      </div>
+
+      <button class="sidebar-close" id="sidebarClose" aria-label="Close menu">
+        ×
+      </button>
     </div>
-  </a>
-</header>
+
+    <div class="sidebar-content">
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Navigation</div>
+
+        <a class="sidebar-link" href="#top">
+          <span class="icon">⌂</span>
+          <span>Home</span>
+        </a>
+
+        <a class="sidebar-link" href="#relatedPostsSection">
+          <span class="icon">☰</span>
+          <span>Related Posts</span>
+        </a>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">About</div>
+
+        <p class="sidebar-note">
+          Browse movie posts, search instantly, open details, and move through pages with a polished layout.
+        </p>
+      </div>
+
+    </div>
+  </aside>
+
+  <header class="topbar" id="top">
+
+    <a class="brand" href="/" aria-label="Home">
+
+      <div class="brand-logo">M</div>
+
+      <div class="brand-text">
+        <h1>Premium Movie Blog</h1>
+        <p>Latest movies, clean layout, quick browsing</p>
+      </div>
+
+    </a>
+
+    <div class="topbar-center">
+
+      <div class="search-wrap">
+
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M21 21l-4.35-4.35"
+                stroke="white"
+                stroke-width="2"
+                stroke-linecap="round"/>
+          <circle cx="11"
+                  cy="11"
+                  r="7"
+                  stroke="white"
+                  stroke-width="2"/>
+        </svg>
+
+        <input
+          id="searchInput"
+          class="search-input"
+          type="search"
+          placeholder="Search movies, labels, titles..."
+        >
+
+        <button
+          id="searchClear"
+          class="search-clear"
+          aria-label="Clear search"
+        >
+          ×
+        </button>
+
+      </div>
+
+    </div>
+
+    <div class="topbar-actions">
+
+      <button
+        class="menu-btn search-btn"
+        id="searchBtn"
+        aria-label="Focus search"
+      >
+
+        <svg viewBox="0 0 24 24" fill="none" width="20" height="20" aria-hidden="true">
+          <path d="M21 21l-4.35-4.35"
+                stroke="white"
+                stroke-width="2"
+                stroke-linecap="round"/>
+          <circle cx="11"
+                  cy="11"
+                  r="7"
+                  stroke="white"
+                  stroke-width="2"/>
+        </svg>
+
+      </button>
+
+      <button
+        class="menu-btn"
+        id="menuBtn"
+        aria-label="Open menu"
+      >
+
+        <div class="menu-lines" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+
+      </button>
+
+    </div>
+
+  </header>
 
 <div class="app">
   <div id="detailView" style="display:block;max-width:1000px;margin:auto;">
