@@ -2,23 +2,11 @@ export async function onRequest(context) {
   const { params, request } = context;
 
   const slug = params.slug || "";
+  const pathname = new URL(request.url).pathname;
 
-  // Allow static files to pass through normally
-  if (
-    slug.endsWith(".css") ||
-    slug.endsWith(".js") ||
-    slug.endsWith(".png") ||
-    slug.endsWith(".jpg") ||
-    slug.endsWith(".jpeg") ||
-    slug.endsWith(".gif") ||
-    slug.endsWith(".svg") ||
-    slug.endsWith(".webp") ||
-    slug.endsWith(".ico") ||
-    slug.endsWith(".json") ||
-    slug.endsWith(".txt") ||
-    slug.endsWith(".xml")
-  ) {
-    return context.next();
+  // Let static files work normally
+  if (/\.(css|js|png|jpg|jpeg|gif|svg|webp|ico|json|txt|xml)$/i.test(pathname)) {
+    return fetch(request);
   }
 
   function slugify(text) {
@@ -56,7 +44,6 @@ export async function onRequest(context) {
       }
 
       if (foundPost) break;
-
     } catch (err) {
       break;
     }
@@ -76,10 +63,8 @@ export async function onRequest(context) {
 
   // IMAGE
   const image =
-    foundPost.media$thumbnail?.url?.replace("/s72-c/", "/s1200/")
-    ||
-    foundPost.content?.$t?.match(/<img.*?src="(.*?)"/i)?.[1]
-    ||
+    foundPost.media$thumbnail?.url?.replace("/s72-c/", "/s1200/") ||
+    foundPost.content?.$t?.match(/<img.*?src="(.*?)"/i)?.[1] ||
     "";
 
   // LABELS
@@ -94,16 +79,13 @@ export async function onRequest(context) {
 
   // CARD FUNCTION
   function createCard(post) {
-
     const postTitle = post.title?.$t || "No Title";
 
     const postSlug = slugify(postTitle);
 
     const postImage =
-      post.media$thumbnail?.url?.replace("/s72-c/", "/s1200/")
-      ||
-      post.content?.$t?.match(/<img.*?src="(.*?)"/i)?.[1]
-      ||
+      post.media$thumbnail?.url?.replace("/s72-c/", "/s1200/") ||
+      post.content?.$t?.match(/<img.*?src="(.*?)"/i)?.[1] ||
       "https://via.placeholder.com/500x750?text=No+Image";
 
     return `
