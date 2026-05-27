@@ -135,6 +135,19 @@ export async function onRequest(context) {
 
 <title>${title}</title>
 
+
+<link rel="icon" type="image/png" href="/favicon32.png">
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BWP4HMDWY8"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-BWP4HMDWY8');
+</script>
+
 <link rel="stylesheet" href="/style.css">
 <script src="/script.js" defer></script>
 
