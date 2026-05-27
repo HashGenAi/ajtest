@@ -204,7 +204,7 @@ export async function onRequest(context) {
     <div class="brand-logo">M</div>
 
     <div class="brand-text">
-      <h1>Premium Movie Blog</h1>
+      <div class="site-title">Premium Movie Blog</div>
       <p>Latest movies, clean layout, quick browsing</p>
     </div>
 
