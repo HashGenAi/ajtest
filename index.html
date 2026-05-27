@@ -67,7 +67,6 @@
     }
   </style>
 
-  <!-- External JavaScript -->
   <script src="script.js" defer></script>
 </head>
 
@@ -297,10 +296,6 @@
           let poster =
             wrapper.dataset.poster;
 
-          /* =========================
-             TAKE FIRST IMAGE
-          ========================= */
-
           if(!poster){
 
             const firstPostImage =
@@ -317,10 +312,6 @@
             }
           }
 
-          /* =========================
-             BLOGGER LARGE SIZE
-          ========================= */
-
           if(poster){
             poster =
               poster.replace(
@@ -328,10 +319,6 @@
                 "/s1600/"
               );
           }
-
-          /* =========================
-             FALLBACK
-          ========================= */
 
           if(!poster){
             poster = fallbackPoster;
@@ -481,18 +468,10 @@
         ||
         "";
 
-      /* =========================
-         FORCE LARGE BLOGGER IMAGE
-      ========================= */
-
       src = src.replace(
         /\/s\d+(-c)?\//,
         "/s1600/"
       );
-
-      /* =========================
-         LOADING EFFECT
-      ========================= */
 
       popupImg.style.opacity = "0";
 
@@ -549,7 +528,7 @@
         (
           currentIndex + 1
         )
-        % 
+        %
         currentImages.length;
 
       updatePopupImage();
@@ -768,7 +747,8 @@
         prevBtn.removeAttribute("aria-disabled");
       }
 
-      const atKnownLastPage = noMoreFiles && (currentPage * POSTS_PER_PAGE >= ALL_POSTS.length);
+      const atKnownLastPage =
+        noMoreFiles && (currentPage * POSTS_PER_PAGE >= ALL_POSTS.length);
 
       if(atKnownLastPage){
         nextBtn.classList.add("disabled");
@@ -1026,14 +1006,20 @@
       const prevPage = currentPage > 1 ? currentPage - 1 : 1;
       const nextPage = currentPage < currentLabelTotalPages ? currentPage + 1 : currentLabelTotalPages;
 
-      prevBtn.href = prevPage === 1 ? `/` : `?label=${encodeURIComponent(currentLabel)}&page=${prevPage}`;
+      prevBtn.href =
+        prevPage === 1
+          ? `/?label=${encodeURIComponent(currentLabel)}`
+          : `?label=${encodeURIComponent(currentLabel)}&page=${prevPage}`;
+
       nextBtn.href = `?label=${encodeURIComponent(currentLabel)}&page=${nextPage}`;
 
       if(addHistory){
         history.pushState(
           { label: currentLabel, page: currentPage },
           "",
-          `?label=${encodeURIComponent(currentLabel)}&page=${currentPage}`
+          currentPage === 1
+            ? `/?label=${encodeURIComponent(currentLabel)}`
+            : `?label=${encodeURIComponent(currentLabel)}&page=${currentPage}`
         );
       }
 
@@ -1074,6 +1060,26 @@
       const page = parseInt(params.get("page") || "1", 10);
       const search = params.get("search") || "";
       const label = params.get("label") || "";
+
+      let pathSlug =
+        window.location.pathname
+          .replace(/^\/+/,"")
+          .replace(/\/+$/,"");
+
+      /* =========================
+         BLOGGER OLD URL -> CLEAN SLUG
+      ========================= */
+
+      if(/^\d{4}\/\d{2}\/.+\.html$/i.test(pathSlug)){
+        const cleanSlug =
+          pathSlug
+            .split("/")
+            .pop()
+            .replace(/\.html$/i, "");
+
+        window.location.replace(`/${cleanSlug}`);
+        return;
+      }
 
       currentPage = Number.isFinite(page) && page > 0 ? page : 1;
       pageNumEl.innerText = currentPage;
@@ -1179,7 +1185,6 @@
     });
 
     window.addEventListener("popstate", () => {
-
       if(
         popup &&
         popup.classList.contains("active")
@@ -1210,8 +1215,6 @@
         return;
       }
 
-      /* ========= DOWNLOAD ========= */
-
       const downloadBtn =
         e.target.closest(".button-link");
 
@@ -1224,8 +1227,6 @@
         return;
       }
 
-      /* ========= VIDEO ========= */
-
       const overlay =
         e.target.closest(".video-overlay");
 
@@ -1237,8 +1238,6 @@
 
         return;
       }
-
-      /* ========= GALLERY ========= */
 
       const galleryImg =
         e.target.closest(
@@ -1255,16 +1254,12 @@
         if(index !== -1){
 
           setTimeout(() => {
-
             openPopup(index);
-
           }, 100);
         }
 
         return;
       }
-
-      /* ========= CLOSE ========= */
 
       if(
         e.target.closest(".tmdb-close")
@@ -1277,8 +1272,6 @@
         return;
       }
 
-      /* ========= NEXT ========= */
-
       if(
         e.target.closest(".tmdb-next")
       ){
@@ -1288,8 +1281,6 @@
         return;
       }
 
-      /* ========= PREV ========= */
-
       if(
         e.target.closest(".tmdb-prev")
       ){
@@ -1298,8 +1289,6 @@
 
         return;
       }
-
-      /* ========= OUTSIDE ========= */
 
       if(
         popup &&
@@ -1395,7 +1384,6 @@
 
     const observer =
       new MutationObserver(() => {
-
         setPoster();
       });
 
