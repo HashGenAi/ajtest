@@ -15,8 +15,25 @@ export async function onRequest(context) {
     return context.next();
   }
 
-  // Let /download page load normally
-  if (pathname === "/download" || pathname === "/download/") {
+  // Let special pages load normally
+  const allowedPages = [
+    "/download",
+    "/download/",
+    "/telugu",
+    "/telugu/",
+    "/tamil",
+    "/tamil/",
+    "/malayalam",
+    "/malayalam/",
+    "/kannada",
+    "/kannada/",
+    "/hindi",
+    "/hindi/",
+    "/english",
+    "/english/"
+  ];
+
+  if (allowedPages.includes(pathname.toLowerCase())) {
     return context.next();
   }
 
