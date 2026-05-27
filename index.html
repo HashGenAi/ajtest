@@ -33,33 +33,34 @@
     .language-cloud{
       width:100%;
       display:flex;
-      flex-direction:column;
-      gap:10px;
-      padding:16px 14px 8px;
-      align-items:flex-start;
-      margin:0 auto;
+      flex-wrap:wrap;
+      gap:12px;
+      justify-content:center;
+      align-items:center;
+      padding:18px 14px;
+      margin:10px auto 0;
       max-width:1200px;
       box-sizing:border-box;
     }
 
-    .cloud-item{
+    .lang-chip{
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      padding:10px 18px;
-      border-radius:999px;
       text-decoration:none;
       color:inherit;
       background:rgba(255,255,255,.08);
       border:1px solid rgba(255,255,255,.14);
+      padding:10px 18px;
+      border-radius:999px;
+      font-size:14px;
+      font-weight:600;
+      transition:transform .2s ease, opacity .2s ease, background .2s ease;
       box-shadow:0 6px 20px rgba(0,0,0,.08);
       backdrop-filter:blur(8px);
-      transition:transform .2s ease, opacity .2s ease, background .2s ease;
-      font-weight:600;
-      letter-spacing:.2px;
     }
 
-    .cloud-item:hover{
+    .lang-chip:hover{
       opacity:.9;
       transform:translateY(-2px);
       background:rgba(255,255,255,.14);
@@ -207,12 +208,12 @@
   </header>
 
   <div class="language-cloud">
-    <a href="/?label=Telugu" class="cloud-item">Telugu</a>
-    <a href="/?label=Tamil" class="cloud-item">Tamil</a>
-    <a href="/?label=Hindi" class="cloud-item">Hindi</a>
-    <a href="/?label=Kannada" class="cloud-item">Kannada</a>
-    <a href="/?label=Malayalam" class="cloud-item">Malayalam</a>
-    <a href="/?label=English" class="cloud-item">English</a>
+    <a href="/?label=Telugu" class="lang-chip">Telugu</a>
+    <a href="/?label=Tamil" class="lang-chip">Tamil</a>
+    <a href="/?label=Hindi" class="lang-chip">Hindi</a>
+    <a href="/?label=Kannada" class="lang-chip">Kannada</a>
+    <a href="/?label=Malayalam" class="lang-chip">Malayalam</a>
+    <a href="/?label=English" class="lang-chip">English</a>
   </div>
 
   <div class="app">
