@@ -10,63 +10,220 @@
 
 <style>
 
+/* =========================
+   DOWNLOAD SECTION
+========================= */
+
 .wrapper{
-  max-width:500px;
-  margin:60px auto;
-  background:#fff;
-  padding:30px 20px;
-  border-radius:10px;
-  box-shadow:0 4px 20px rgba(0,0,0,0.08);
+  position:relative;
+  max-width:520px;
+  margin:90px auto 40px;
+  padding:40px 28px;
+  border-radius:28px;
+
+  background:rgba(255,255,255,0.06);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+
+  border:1px solid rgba(255,255,255,0.12);
+
+  box-shadow:
+    0 10px 40px rgba(0,0,0,0.25),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+
+  overflow:hidden;
   text-align:center;
 }
 
-h2{
-  margin:0 0 15px;
-  font-size:24px;
-  color:#222;
+/* glow effect */
+.wrapper::before{
+  content:"";
+  position:absolute;
+  inset:-120px;
+
+  background:
+    radial-gradient(circle at top left,
+    rgba(255,46,68,0.22),
+    transparent 35%),
+
+    radial-gradient(circle at bottom right,
+    rgba(255,255,255,0.08),
+    transparent 30%);
+
+  pointer-events:none;
 }
 
-p{
-  color:#555;
-  font-size:16px;
-  margin-bottom:20px;
-}
-
-#countdown{
-  font-size:36px;
-  font-weight:bold;
-  color:#ff2e44;
-  margin:20px 0;
-}
-
-#downloadBtn{
-  display:none;
-  background:#ff2e44;
+.wrapper h2{
+  position:relative;
+  margin:0 0 14px;
+  font-size:32px;
+  line-height:1.2;
   color:#fff;
+  font-weight:800;
+  letter-spacing:.3px;
+}
+
+.wrapper p{
+  position:relative;
+  color:rgba(255,255,255,0.78);
+  font-size:16px;
+  line-height:1.6;
+  margin-bottom:24px;
+}
+
+/* Countdown circle */
+#countdown{
+  position:relative;
+
+  width:140px;
+  height:140px;
+
+  margin:20px auto 28px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  border-radius:50%;
+
+  font-size:42px;
+  font-weight:800;
+  color:#fff;
+
+  background:
+    linear-gradient(135deg,
+    rgba(255,46,68,0.95),
+    rgba(255,90,110,0.85));
+
+  box-shadow:
+    0 0 30px rgba(255,46,68,0.35),
+    inset 0 2px 8px rgba(255,255,255,0.25);
+}
+
+/* Download button */
+#downloadBtn{
+  position:relative;
+
+  display:none;
   text-decoration:none;
-  padding:14px 28px;
-  border-radius:8px;
-  font-size:18px;
-  font-weight:bold;
-  transition:background .3s;
+
+  padding:15px 34px;
+
+  border-radius:14px;
+
+  font-size:17px;
+  font-weight:700;
+  letter-spacing:.3px;
+
+  color:#fff;
+
+  background:
+    linear-gradient(135deg,
+    #ff2e44,
+    #ff5a6e);
+
+  box-shadow:
+    0 10px 25px rgba(255,46,68,0.35);
+
+  transition:
+    transform .25s ease,
+    box-shadow .25s ease,
+    opacity .3s ease;
+
   pointer-events:none;
   opacity:0;
 }
 
 #downloadBtn.active{
-  display:inline-block;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+
   pointer-events:auto;
   opacity:1;
 }
 
 #downloadBtn:hover{
-  background:#e62438;
+  transform:translateY(-3px);
+
+  box-shadow:
+    0 16px 35px rgba(255,46,68,0.45);
 }
 
+#downloadBtn:active{
+  transform:scale(.98);
+}
+
+/* Note */
 .note{
-  margin-top:20px;
+  position:relative;
+
+  margin-top:22px;
+
   font-size:14px;
-  color:#888;
+  color:rgba(255,255,255,0.55);
+
+  line-height:1.6;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width:768px){
+
+  .wrapper{
+    width:calc(100% - 22px);
+    margin:80px auto 30px;
+
+    padding:34px 20px;
+
+    border-radius:24px;
+  }
+
+  .wrapper h2{
+    font-size:26px;
+  }
+
+  .wrapper p{
+    font-size:15px;
+  }
+
+  #countdown{
+    width:120px;
+    height:120px;
+    font-size:36px;
+  }
+
+  #downloadBtn{
+    width:100%;
+    padding:15px 20px;
+    font-size:16px;
+  }
+
+}
+
+/* =========================
+   SMALL DEVICES
+========================= */
+
+@media(max-width:480px){
+
+  .wrapper{
+    padding:30px 16px;
+  }
+
+  .wrapper h2{
+    font-size:23px;
+  }
+
+  #countdown{
+    width:105px;
+    height:105px;
+    font-size:32px;
+  }
+
 }
 
 </style>
@@ -193,15 +350,26 @@ p{
   </div>
 </header>
 
+<!-- DOWNLOAD SECTION -->
+
 <div class="wrapper" id="downloadSection">
+
   <h2>Preparing Your Download</h2>
-  <p id="statusText">Please wait, your download link will be ready in:</p>
+
+  <p id="statusText">
+    Please wait, your download link will be ready in:
+  </p>
 
   <div id="countdown">5</div>
 
-  <a id="downloadBtn" href="javascript:void(0)">Download Now</a>
+  <a id="downloadBtn" href="javascript:void(0)">
+    Download Now
+  </a>
 
-  <div class="note">Do not close this page while waiting.</div>
+  <div class="note">
+    Do not close this page while waiting.
+  </div>
+
 </div>
 
 <script>
@@ -257,14 +425,17 @@ document.addEventListener("DOMContentLoaded", () => {
 </script>
 
 <script>
+
 // Countdown seconds
 var seconds = 5;
+
 var countdownEl = document.getElementById("countdown");
 var downloadBtn = document.getElementById("downloadBtn");
 var statusText = document.getElementById("statusText");
 
 // Get URL params
 var params = new URLSearchParams(window.location.search);
+
 var targetPath = params.get("target");
 var domainKey = params.get("d");
 
@@ -280,7 +451,10 @@ var domains = {
 
 // Determine final link
 var domain = domains[domainKey];
-var finalLink = targetPath ? (domain ? domain + targetPath : targetPath) : null;
+
+var finalLink = targetPath
+  ? (domain ? domain + targetPath : targetPath)
+  : null;
 
 // Check target
 if (!targetPath) {
@@ -293,6 +467,7 @@ if (!targetPath) {
   var timer = setInterval(function(){
 
     countdownEl.innerHTML = seconds;
+
     seconds--;
 
     if (seconds < 0) {
@@ -304,7 +479,7 @@ if (!targetPath) {
 
       downloadBtn.classList.add("active");
 
-      // Click event for download
+      // Click event
       downloadBtn.addEventListener("click", function(){
         window.location.href = finalLink;
       });
@@ -314,6 +489,7 @@ if (!targetPath) {
   }, 1000);
 
 }
+
 </script>
 
 </body>
