@@ -9,6 +9,11 @@ export async function onRequest(context) {
     return context.next();
   }
 
+  // Let /download page load normally
+  if (pathname === "/download" || pathname === "/download/") {
+    return context.next();
+  }
+
   function slugify(text) {
     return text
       .toLowerCase()
@@ -59,21 +64,28 @@ export async function onRequest(context) {
   const title = foundPost.title?.$t || "No Title";
   const rawContent = foundPost.content?.$t || "";
 
-  // First image from the post body
-  const firstContentImageMatch = rawContent.match(/<img[^>]*src="([^"]+)"[^>]*>/i);
+  // First image from content
+  const firstContentImageMatch =
+    rawContent.match(/<img[^>]*src="([^"]+)"[^>]*>/i);
+
   const firstContentImage = firstContentImageMatch?.[1] || "";
 
-  // Use the first image again as the featured image
+  // Featured image
   const image =
     firstContentImage ||
     foundPost.media$thumbnail?.url?.replace("/s72-c/", "/s1200/") ||
     "";
 
-  // Remove the first image from the body so it does not repeat twice
+  // CLEAN CONTENT
   let content = rawContent;
+
+  // Remove first image
   if (firstContentImageMatch?.[0]) {
     content = content.replace(firstContentImageMatch[0], "");
   }
+
+  // Remove ALL h1 tags from body
+  content = content.replace(/<h1[^>]*>[\s\S]*?<\/h1>/gi, "");
 
   // LABELS
   const labels = (foundPost.category || [])
@@ -117,9 +129,12 @@ export async function onRequest(context) {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+
 <title>${title}</title>
+
 <link rel="stylesheet" href="/style.css">
 <script src="/script.js" defer></script>
+
 <meta content="no-referrer" name="referrer"/>
 </head>
 
@@ -127,18 +142,11 @@ export async function onRequest(context) {
 
 <header class="topbar">
   <a class="brand" href="/">
-    <div class="brand-logo">
-      M
-    </div>
+    <div class="brand-logo">M</div>
 
     <div class="brand-text">
-      <h1>
-        Premium Movie Blog
-      </h1>
-
-      <p>
-        Latest movies, clean layout, quick browsing
-      </p>
+      <h2>Premium Movie Blog</h2>
+      <p>Latest movies, clean layout, quick browsing</p>
     </div>
   </a>
 </header>
@@ -153,15 +161,12 @@ export async function onRequest(context) {
 
     <div id="detailContent">
 
-      <h1 class="detail-title">
-        ${title}
-      </h1>
+      <!-- ONLY H1 -->
+      <h1 class="detail-title">${title}</h1>
 
       <div class="labels" style="margin-bottom:18px;display:flex;flex-wrap:wrap;gap:8px;">
         ${labels.map(label => `
-          <span class="label">
-            ${label}
-          </span>
+          <span class="label">${label}</span>
         `).join("")}
       </div>
 
@@ -169,15 +174,23 @@ export async function onRequest(context) {
         <img
           src="${image}"
           alt="${title}"
-          style="width:100%;max-width:650px;border-radius:20px;margin-bottom:20px;display:block;">
+          style="
+            width:100%;
+            max-width:520px;
+            display:block;
+            margin:0 auto 20px auto;
+            border-radius:20px;
+          ">
       ` : ""}
 
       <div class="detail-body">
         ${content}
       </div>
+
     </div>
 
     <div id="relatedPostsSection" style="margin-top:50px;">
+
       <h2 style="margin-bottom:20px;font-size:28px;">
         Related Posts
       </h2>
@@ -185,6 +198,7 @@ export async function onRequest(context) {
       <div id="relatedPosts" class="grid">
         ${relatedPosts.map(post => createCard(post)).join("")}
       </div>
+
     </div>
 
   </div>
