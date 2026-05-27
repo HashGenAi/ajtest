@@ -151,11 +151,11 @@ export async function onRequest(context) {
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <div class="sidebar-profile">
-        <div class="sidebar-avatar">M</div>
+        <div class="sidebar-avatar">J</div>
 
         <div>
-          <h2>Premium Movies</h2>
-          <p>Fast, clean, modern</p>
+          <h2>Jio Rockers</h2>
+          <p>Watch & Download</p>
         </div>
       </div>
 
@@ -190,7 +190,7 @@ export async function onRequest(context) {
 
         <p class="sidebar-note">
           Browse the newest movie posts, search instantly, open details,
-          and move through pages with a polished layout.
+          and move through pages.
         </p>
       </div>
 
@@ -201,11 +201,11 @@ export async function onRequest(context) {
 
   <a class="brand" href="/" aria-label="Home">
 
-    <div class="brand-logo">M</div>
+    <div class="brand-logo">J</div>
 
     <div class="brand-text">
-      <div class="site-title">Premium Movie Blog</div>
-      <p>Latest movies, clean layout, quick browsing</p>
+      <div class="site-title">Jio Rockers</div>
+      <p>Watch & Download</p>
     </div>
 
   </a>
